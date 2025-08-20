@@ -1,18 +1,106 @@
 import jwt from "jsonwebtoken";
+import type { Cookie } from "elysia";
 
-const secret = process.env.JWT_SECRET;
+const refresh_secret = process.env.JWT_REFRESH_SECRET;
+const access_secret = process.env.JWT_ACCESS_SECRET;
 
-export const verifyToken = (token: string) => {
+export const verifyToken = (
+  cookie: Record<string, Cookie<string | undefined>>,
+  header: Record<string, string | undefined>
+) => {
+  console.log("verify token has run !");
   try {
-    if (!secret) {
+    //return "101";
+    if (!refresh_secret || !access_secret) {
       console.log("JWT secret is null. Function VerifyToken()");
       return null;
     }
-    // returns the decoded payload if token is valid
-    const payload = jwt.verify(token, secret);
-    return payload;
+
+    // verify
+
+    const refreshToken = cookie!.refreshToken?.value;
+    // returns the decoded payload for refresh token
+    // if bad payload, then this throws error and status 500 sent back to client
+    const refreshTokenResult = verifyTokenHelper(refreshToken, refresh_secret);
+    if (
+      refreshTokenResult === "BAD_TOKEN" ||
+      refreshTokenResult === undefined
+    ) {
+      return "BAD_TOKEN";
+    }
+
+    console.log("refresh token payload: ", refreshTokenResult);
+
+    // check access token
+    const accessToken = header["x-access-token"];
+    console.log("Access token on res header: ", accessToken);
+
+    // No access token, make new one and send off for response
+    if (!accessToken) {
+      const username = refreshTokenResult.username;
+      // 1 hour expiry
+      const newAccessToken = makeJWT(username, access_secret, 3600);
+
+      if (newAccessToken === "BAD_A_TOKEN") {
+        return null;
+      }
+      console.log("Returning access token: ", newAccessToken);
+      return newAccessToken;
+    }
+    // BAD access token, make new one.
+    else {
+      const accessTokenResult = verifyTokenHelper(accessToken, access_secret);
+      if (accessTokenResult === "BAD_TOKEN") {
+        const username = refreshTokenResult.username;
+        const newAccessToken = makeJWT(username, access_secret, 3600);
+        if (newAccessToken === "BAD_A_TOKEN") {
+          return null;
+        }
+        console.log("Returning access token: ", newAccessToken);
+        return newAccessToken;
+      }
+    }
+
+    // Access token and Refresh token are Up to date
+    // we just allow request to go straight to Request handle
+
+    // Acess token BAD and Rresfresh token GOOD
+    // Create new access token, and pass along for After handler set to header
+
+    // Refresh Token is BAD
+    // we return null, and we need return response error so client gets logged out and redirect to login...
+    console.log("verify Token returning true i think");
+    return true;
   } catch (err) {
     // token invalid or expired
+    console.log("VerifyToken() Error: ", err);
     return null;
   }
 };
+
+function verifyTokenHelper(
+  token: string | undefined,
+  secret: string | undefined
+) {
+  try {
+    if (token && secret) {
+      const payload = jwt.verify(token, secret) as jwt.JwtPayload;
+      return payload;
+    } else {
+      return "BAD_TOKEN";
+    }
+  } catch (error) {
+    return "BAD_TOKEN";
+  }
+}
+
+function makeJWT(username: string, secret: string, expiry: number) {
+  try {
+    const token = jwt.sign({ username }, secret, {
+      expiresIn: `${expiry}`,
+    });
+    return token;
+  } catch (error) {
+    return "BAD_A_TOKEN";
+  }
+}
