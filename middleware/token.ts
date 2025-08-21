@@ -16,9 +16,10 @@ export const verifyToken = (
       return null;
     }
 
-    // verify
+    // verify refresh token here.
 
     const refreshToken = cookie!.refreshToken?.value;
+    console.log("refresh token in verifyToken(): ", refreshToken);
     // returns the decoded payload for refresh token
     // if bad payload, then this throws error and status 500 sent back to client
     const refreshTokenResult = verifyTokenHelper(refreshToken, refresh_secret);
@@ -32,7 +33,7 @@ export const verifyToken = (
     console.log("refresh token payload: ", refreshTokenResult);
 
     // check access token
-    const accessToken = header["x-access-token"];
+    const accessToken = cookie!.accessToken?.value;
     console.log("Access token on res header: ", accessToken);
 
     // No access token, make new one and send off for response
@@ -78,7 +79,7 @@ export const verifyToken = (
   }
 };
 
-function verifyTokenHelper(
+export function verifyTokenHelper(
   token: string | undefined,
   secret: string | undefined
 ) {
