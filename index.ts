@@ -32,19 +32,30 @@ const app = new Elysia()
     beforeHandle({ cookie, headers, path, set }) {
       // if paths include login or register then we dont need to check any tokens
       // but, if /checkStartSession is run, then we can simply
-      if (!path.includes("/login") || !path.includes("/register")) {
+      console.log("path on before Handle: ", path);
+      if (
+        !(
+          path.includes("/login") ||
+          path.includes("/register") ||
+          path.includes("/onLoadTokenCheck")
+        )
+      ) {
         const result = verifyToken(cookie, headers);
         console.log("result of verifyToken() ", result);
         if (result === "BAD_TOKEN") {
-          throw new Error("VALIDATION");
+          throw status(401);
         } else if (result === null) {
           throw status(500);
-        }
-        if (result !== true && result !== null) {
+        } else if (result !== true && result !== null) {
           // we have a access token to use
           // set context header, here so we can later set response header
           console.log("Before handle setting access token");
-          set.headers = { "x-access-token": result };
+          cookie?.accessToken!.set({
+            value: result,
+            httpOnly: true,
+            maxAge: 60 * 60 * 24 * 1, // 1 day
+          });
+          // set.headers = { "x-access-token": result };
         }
       }
     },
