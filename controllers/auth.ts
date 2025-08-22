@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 import sql from "../database/config";
 import type { Cookie, HTTPHeaders, StatusMap } from "elysia";
 import type { ElysiaCookie } from "elysia/cookies";
-import { verifyTokenHelper } from "../middleware/token";
+import { createToken, verifyTokenHelper } from "../middleware/token";
+import type { IToken, User } from "../types/user";
 
 // Two token approach
 
@@ -37,32 +38,59 @@ export const loginUser = async (
       return { success: false, message: "Database finding user Error" };
     }
 
+    const id = user.id;
+
+    console.log("user id: ", id);
+    console.log("username: ", username);
+
     console.log("user found: ", user);
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return { success: false, message: "Password did not match username" };
     }
 
-    const accessToken = jwt.sign({ username }, access_secret, {
-      expiresIn: "1h",
-    });
+    const accessToken = createToken<IToken>(
+      { id, username },
+      access_secret,
+      3600
+    );
+
+    if (accessToken === "BAD_A_TOKEN") {
+      return { success: false, message: "Create access token failed in login" };
+    }
+    // const accessToken = jwt.sign({ username }, access_secret, {
+    //   expiresIn: "1h",
+    // });
     // set cookie
     cookie?.accessToken!.set({
       value: accessToken,
       httpOnly: true,
-      maxAge: 60 * 60 * 1, // 1 hour
+      maxAge: 60 * 60, // 1 hour
     });
 
-    const refreshToken = jwt.sign({ username }, refresh_secret, {
-      expiresIn: "3d",
-    });
+    const refreshToken = createToken<IToken>(
+      { id, username },
+      refresh_secret,
+      3600 * 24 * 3
+    );
+
+    if (refreshToken === "BAD_A_TOKEN") {
+      return {
+        success: false,
+        message: "Create refresh token failed in login",
+      };
+    }
+
+    // const refreshToken = jwt.sign({ username }, refresh_secret, {
+    //   expiresIn: "3d",
+    // });
     // set cookie
     cookie?.refreshToken!.set({
       value: refreshToken,
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 3, // 3 days
     });
-
+    console.log("returning login success");
     return { success: true, message: "Sign in successful" };
   } catch (error) {
     console.log("Login user error: ", error);
@@ -107,12 +135,27 @@ export const registerUser = async (
       return { success: false, message: "Database error" };
     }
 
+    const id = user.id;
+
     console.log("Returned data from post query: ", user);
 
     // create refresh token and add to cookie for response
-    const refreshToken = jwt.sign({ username }, refresh_secret, {
-      expiresIn: "3d",
-    });
+    // const refreshToken = jwt.sign({ username }, refresh_secret, {
+    //   expiresIn: "3d",
+    // });
+
+    const refreshToken = createToken<IToken>(
+      { id, username },
+      refresh_secret,
+      3600 * 24 * 3
+    );
+
+    if (refreshToken === "BAD_A_TOKEN") {
+      return {
+        success: false,
+        message: "Create refresh token failed in register",
+      };
+    }
 
     // set cookie
     cookie?.refreshToken!.set({
@@ -121,11 +164,26 @@ export const registerUser = async (
       maxAge: 60 * 60 * 24 * 3, // 3 days
     });
 
+    // ---------------
+
     // console.log("Cookies been SET to: ", cookie?.value);
 
-    const accessToken = jwt.sign({ username }, access_secret, {
-      expiresIn: "1h",
-    });
+    // const accessToken = jwt.sign({ username }, access_secret, {
+    //   expiresIn: "1h",
+    // });
+
+    const accessToken = createToken<IToken>(
+      { id, username },
+      access_secret,
+      3600
+    );
+
+    if (accessToken === "BAD_A_TOKEN") {
+      return {
+        success: false,
+        message: "Create access token failed in register",
+      };
+    }
 
     // set cookie
     cookie?.accessToken!.set({
@@ -148,30 +206,50 @@ export const registerUser = async (
 export const checkRefreshToken = (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
-  const refresh_secret = process.env.JWT_REFRESH_SECRET;
-  const result = verifyTokenHelper(cookie.refreshToken?.value, refresh_secret);
+  try {
+    const refresh_secret = process.env.JWT_REFRESH_SECRET;
+    const result = verifyTokenHelper(
+      cookie.refreshToken?.value,
+      refresh_secret
+    );
 
-  // bad refresh token, we send back no token at all, just a normal response with falsely success
-  if (result === "BAD_TOKEN") {
-    return { success: false, message: "Refresh is BAD" };
-  } else {
-    // create new access token, and pass it back
-    const access_secret = process.env.JWT_ACCESS_SECRET;
-    if (!access_secret) {
-      return "BAD_JWT_SECRETs";
+    // bad refresh token, we send back no token at all, just a normal response with falsely success
+    if (result === "BAD_TOKEN") {
+      return { success: false, message: "Refresh is BAD" };
+    } else {
+      // create new access token, and pass it back
+      const access_secret = process.env.JWT_ACCESS_SECRET;
+      if (!access_secret) {
+        return "BAD_JWT_SECRETs";
+      }
+      const id = result.id;
+      const username = result.username;
+      // const accessToken = jwt.sign({ username }, access_secret, {
+      //   expiresIn: "1h",
+      // });
+      const accessToken = createToken<IToken>(
+        { id, username },
+        access_secret,
+        3600
+      );
+
+      if (accessToken === "BAD_A_TOKEN") {
+        return {
+          success: false,
+          message: "Create access token failed in checkRefreshToken",
+        };
+      }
+
+      // set cookie
+      cookie?.accessToken!.set({
+        value: accessToken,
+        httpOnly: true,
+        maxAge: 60 * 60 * 1, // 1 hour
+      });
+      return { success: true, message: "hehe" };
     }
-    const username = result.username;
-    const accessToken = jwt.sign({ username }, access_secret, {
-      expiresIn: "1h",
-    });
-
-    // set cookie
-    cookie?.accessToken!.set({
-      value: accessToken,
-      httpOnly: true,
-      maxAge: 60 * 60 * 1, // 1 hour
-    });
-    return { success: true, message: "hehe" };
+  } catch (error) {
+    console.log("error in checkRefreshToken ", error);
   }
 };
 

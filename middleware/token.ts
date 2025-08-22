@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Cookie } from "elysia";
+import type { IToken } from "../types/user";
 
 const refresh_secret = process.env.JWT_REFRESH_SECRET;
 const access_secret = process.env.JWT_ACCESS_SECRET;
@@ -38,9 +39,13 @@ export const verifyToken = (
 
     // No access token, make new one and send off for response
     if (!accessToken) {
+      const id = refreshTokenResult.id;
       const username = refreshTokenResult.username;
-      // 1 hour expiry
-      const newAccessToken = makeJWT(username, access_secret, 3600);
+      const newAccessToken = createToken<IToken>(
+        { id, username },
+        access_secret,
+        3600
+      );
 
       if (newAccessToken === "BAD_A_TOKEN") {
         return null;
@@ -52,8 +57,13 @@ export const verifyToken = (
     else {
       const accessTokenResult = verifyTokenHelper(accessToken, access_secret);
       if (accessTokenResult === "BAD_TOKEN") {
+        const id = refreshTokenResult.id;
         const username = refreshTokenResult.username;
-        const newAccessToken = makeJWT(username, access_secret, 3600);
+        const newAccessToken = createToken<IToken>(
+          { id, username },
+          access_secret,
+          3600
+        );
         if (newAccessToken === "BAD_A_TOKEN") {
           return null;
         }
@@ -95,9 +105,13 @@ export function verifyTokenHelper(
   }
 }
 
-function makeJWT(username: string, secret: string, expiry: number) {
+export function createToken<T extends object>(
+  payload: T,
+  secret: string,
+  expiry: number
+) {
   try {
-    const token = jwt.sign({ username }, secret, {
+    const token = jwt.sign(payload, secret, {
       expiresIn: `${expiry}`,
     });
     return token;

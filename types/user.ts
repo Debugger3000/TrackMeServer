@@ -9,3 +9,8 @@ export interface User {
   password_hash: string;
   created_at: string; // or Date if you parse it
 }
+
+export interface IToken {
+  id: number;
+  username: string;
+}
