@@ -31,6 +31,7 @@ export const authRoute = new Elysia({ prefix: "/api/auth" })
     if (!result.success) {
       return result;
     } else {
+      console.log("bad success: ", result.message);
       throw status(500);
     }
   })
@@ -39,6 +40,7 @@ export const authRoute = new Elysia({ prefix: "/api/auth" })
     const { username, password } = body as IRegisterBody;
     const result = await loginUser(username, password, cookie);
     if (result.success) {
+      console.log("successful login. Returning tokens to client");
       return result;
     } else {
       console.log("bad success: ", result.message);
