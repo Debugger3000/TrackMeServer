@@ -22,11 +22,15 @@ const app = new Elysia()
   .onError(({ code, error }) => {
     console.log("Error was thrown from somewhere: ", code);
     console.log("Error thrown in onError: ", error);
-    if (error instanceof Error && error.message === "VALIDATION") {
-      console.log("Error message: ", error.message);
-      return new Response(JSON.stringify({ Error: "BAD_TOKEN" }));
+    if (code === 401) {
+      console.log("Returning a 401");
+
+      return status(401, "Unauthorized");
     } else {
-      return new Response(error.toString());
+      return {
+        status: 500,
+        body: { error: "Server Error" },
+      };
     }
   })
   .guard({
