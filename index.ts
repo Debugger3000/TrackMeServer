@@ -42,7 +42,8 @@ const app = new Elysia()
         !(
           path.includes("/login") ||
           path.includes("/register") ||
-          path.includes("/onLoadTokenCheck")
+          path.includes("/onLoadTokenCheck") ||
+          path.includes("/logout")
         )
       ) {
         const result = verifyToken(cookie, headers);
