@@ -19,8 +19,13 @@ export const authRoute = new Elysia({ prefix: "/api/auth" })
   .post("/onLoadTokenCheck", ({ cookie }) => {
     const result = checkRefreshToken(cookie);
     if (result === "BAD_JWT_SECRETs") {
+      console.log("BAD secrets for onLoad token check");
       throw status(500);
+    } else if (!result?.success) {
+      console.log("BAD Refresh token it seems... for onLoad check");
+      throw status(401);
     } else {
+      console.log("GOOD on load token check...");
       return result;
     }
   })

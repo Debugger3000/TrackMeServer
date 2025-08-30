@@ -6,6 +6,7 @@ import type { Cookie, HTTPHeaders, StatusMap } from "elysia";
 import type { ElysiaCookie } from "elysia/cookies";
 import { createToken, verifyTokenHelper } from "../middleware/token";
 import type { IToken, User } from "../types/user";
+import { COOKIELIFE } from "../types/auth";
 
 // Two token approach
 
@@ -52,7 +53,7 @@ export const loginUser = async (
     const accessToken = createToken<IToken>(
       { id, username },
       access_secret,
-      3600
+      COOKIELIFE.accessTokenLife
     );
 
     if (accessToken === "BAD_A_TOKEN") {
@@ -65,13 +66,13 @@ export const loginUser = async (
     cookie?.accessToken!.set({
       value: accessToken,
       httpOnly: true,
-      maxAge: 60 * 60, // 1 hour
+      maxAge: COOKIELIFE.accessTokenLife,
     });
 
     const refreshToken = createToken<IToken>(
       { id, username },
       refresh_secret,
-      3600 * 24 * 3
+      COOKIELIFE.refreshTokenLife
     );
 
     if (refreshToken === "BAD_A_TOKEN") {
@@ -88,7 +89,7 @@ export const loginUser = async (
     cookie?.refreshToken!.set({
       value: refreshToken,
       httpOnly: true,
-      maxAge: 60 * 60 * 24 * 3, // 3 days
+      maxAge: COOKIELIFE.refreshTokenLife,
     });
     console.log("returning login success");
     return { success: true, message: "Sign in successful" };
@@ -147,7 +148,7 @@ export const registerUser = async (
     const refreshToken = createToken<IToken>(
       { id, username },
       refresh_secret,
-      3600 * 24 * 3
+      COOKIELIFE.refreshTokenLife
     );
 
     if (refreshToken === "BAD_A_TOKEN") {
@@ -161,21 +162,15 @@ export const registerUser = async (
     cookie?.refreshToken!.set({
       value: refreshToken,
       httpOnly: true,
-      maxAge: 60 * 60 * 24 * 3, // 3 days
+      maxAge: COOKIELIFE.refreshTokenLife,
     });
 
     // ---------------
 
-    // console.log("Cookies been SET to: ", cookie?.value);
-
-    // const accessToken = jwt.sign({ username }, access_secret, {
-    //   expiresIn: "1h",
-    // });
-
     const accessToken = createToken<IToken>(
       { id, username },
       access_secret,
-      3600
+      COOKIELIFE.accessTokenLife
     );
 
     if (accessToken === "BAD_A_TOKEN") {
@@ -189,13 +184,13 @@ export const registerUser = async (
     cookie?.accessToken!.set({
       value: accessToken,
       httpOnly: true,
-      maxAge: 60 * 60 * 1, // 1 hour
+      maxAge: COOKIELIFE.accessTokenLife,
     });
 
     return { success: true, message: "hehe" };
   } catch (error) {
-    return { success: false, message: "Server Error" };
     console.log("Register User Error: ", error);
+    return { success: false, message: "Server Error" };
   }
 };
 
@@ -213,8 +208,11 @@ export const checkRefreshToken = (
       refresh_secret
     );
 
+    console.log("result of token verify: ", result);
+
     // bad refresh token, we send back no token at all, just a normal response with falsely success
     if (result === "BAD_TOKEN") {
+      console.log("bad refresh in on load token check.");
       return { success: false, message: "Refresh is BAD" };
     } else {
       // create new access token, and pass it back
@@ -230,10 +228,12 @@ export const checkRefreshToken = (
       const accessToken = createToken<IToken>(
         { id, username },
         access_secret,
-        3600
+        COOKIELIFE.accessTokenLife
       );
 
       if (accessToken === "BAD_A_TOKEN") {
+        console.log("failed to create access token on load token check.");
+
         return {
           success: false,
           message: "Create access token failed in checkRefreshToken",
@@ -244,8 +244,10 @@ export const checkRefreshToken = (
       cookie?.accessToken!.set({
         value: accessToken,
         httpOnly: true,
-        maxAge: 60 * 60 * 1, // 1 hour
+        maxAge: COOKIELIFE.accessTokenLife,
       });
+      console.log("Access made and set. Returning success on load token check");
+
       return { success: true, message: "hehe" };
     }
   } catch (error) {
@@ -260,14 +262,14 @@ export const logout = (cookie: Record<string, Cookie<string | undefined>>) => {
     cookie?.accessToken!.set({
       value: "",
       httpOnly: true,
-      maxAge: 0, // 1 day
+      maxAge: 0,
     });
 
     // REMOVE refresh cookie
     cookie?.refreshToken!.set({
       value: "",
       httpOnly: true,
-      maxAge: 0, // 1 day
+      maxAge: 0,
     });
 
     return true;

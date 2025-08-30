@@ -31,11 +31,11 @@ export const verifyToken = (
       return "BAD_TOKEN";
     }
 
-    console.log("refresh token payload: ", refreshTokenResult);
+    console.log("Refresh token is Good ", refreshTokenResult);
 
     // check access token
     const accessToken = cookie!.accessToken?.value;
-    console.log("Access token on res header: ", accessToken);
+    // console.log("Access token on res header: ", accessToken);
 
     // No access token, make new one and send off for response
     if (!accessToken) {
@@ -48,6 +48,7 @@ export const verifyToken = (
       );
 
       if (newAccessToken === "BAD_A_TOKEN") {
+        console.log("No access token, Creation of new access token failed.");
         return null;
       }
       console.log("Returning access token: ", newAccessToken);
@@ -65,9 +66,11 @@ export const verifyToken = (
           3600
         );
         if (newAccessToken === "BAD_A_TOKEN") {
+          console.log("Bad access token, Creation of new access token failed.");
           return null;
         }
-        console.log("Returning access token: ", newAccessToken);
+        // console.log("Returning access token: ", newAccessToken);
+        console.log("Created new access token, off bad access token. Success.");
         return newAccessToken;
       }
     }
@@ -80,11 +83,11 @@ export const verifyToken = (
 
     // Refresh Token is BAD
     // we return null, and we need return response error so client gets logged out and redirect to login...
-    console.log("verify Token returning true i think");
+    console.log("verify Token returning true");
     return true;
   } catch (err) {
     // token invalid or expired
-    console.log("VerifyToken() Error: ", err);
+    console.log("VerifyToken() function Error: ", err);
     return null;
   }
 };
@@ -95,9 +98,12 @@ export function verifyTokenHelper(
 ) {
   try {
     if (token && secret) {
+      console.log("verify token paramter: ", token);
+      console.log("secret param: ", secret);
       const payload = jwt.verify(token, secret) as jwt.JwtPayload;
       return payload;
     } else {
+      console.log("else hit in verifiyTokenHelper");
       return "BAD_TOKEN";
     }
   } catch (error) {
@@ -112,7 +118,7 @@ export function createToken<T extends object>(
 ) {
   try {
     const token = jwt.sign(payload, secret, {
-      expiresIn: `${expiry}`,
+      expiresIn: expiry,
     });
     return token;
   } catch (error) {
