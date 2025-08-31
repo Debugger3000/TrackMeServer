@@ -5,6 +5,7 @@ import { authRoute } from "./routes/auth.ts";
 import { userRoute } from "./routes/user.ts";
 import { verifyToken } from "./middleware/token.ts";
 import "./database/config.ts";
+import { shotDataRoute } from "./routes/shots.ts";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
 const port = 3000;
@@ -70,6 +71,7 @@ const app = new Elysia()
   .get("/", () => {})
   .use(authRoute)
   .use(userRoute)
+  .use(shotDataRoute)
   .use(testRoute)
   .listen(port);
 
