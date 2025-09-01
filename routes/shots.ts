@@ -1,5 +1,5 @@
 import { Elysia, status } from "elysia";
-import { postShotData } from "../controllers/shots";
+import { getShotData, postShotData } from "../controllers/shots";
 import type { IShot } from "../types/shots";
 
 export const shotDataRoute = new Elysia({ prefix: "/api/data" })
@@ -7,23 +7,28 @@ export const shotDataRoute = new Elysia({ prefix: "/api/data" })
     try {
       console.log("In adding shot Data");
       const result = await postShotData(body as IShot[]);
-      if (result.success) {
+      if (!result.success) {
         console.log("500 for post shot data");
         throw status(500);
       } else {
-        console.log("returning user info");
+        console.log("Shot Data has been posted. Returning success.");
         return result;
       }
     } catch (error) {
-      console.log("Error in get user info router");
+      console.log("Error in post shot data router");
     }
   })
-  .get("/shot", ({ body }) => {
+  .get("/shot", async ({ cookie }) => {
     try {
-      console.log("In adding shot Data");
-      //   const result = await postShotData(body as IShot[]);
-
-      return { success: true, message: "route good" };
+      console.log("Getting stats data...");
+      const result = await getShotData(cookie);
+      if (!result) {
+        console.log("500 for post shot data");
+        throw status(500);
+      } else {
+        console.log("Returning shot data to client...");
+        return result;
+      }
     } catch (error) {
       console.log("Error in get user info router");
     }
