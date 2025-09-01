@@ -31,7 +31,7 @@ export const verifyToken = (
       return "BAD_TOKEN";
     }
 
-    console.log("Refresh token is Good ", refreshTokenResult);
+    console.log("Refresh token is Good ");
 
     // check access token
     const accessToken = cookie!.accessToken?.value;
@@ -51,7 +51,7 @@ export const verifyToken = (
         console.log("No access token, Creation of new access token failed.");
         return null;
       }
-      console.log("Returning access token: ", newAccessToken);
+      console.log("Returning access token: ");
       return newAccessToken;
     }
     // BAD access token, make new one.
@@ -98,8 +98,8 @@ export function verifyTokenHelper(
 ) {
   try {
     if (token && secret) {
-      console.log("verify token paramter: ", token);
-      console.log("secret param: ", secret);
+      console.log("verify token paramter: ");
+      console.log("secret param: ");
       const payload = jwt.verify(token, secret) as jwt.JwtPayload;
       return payload;
     } else {
