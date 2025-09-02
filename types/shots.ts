@@ -38,6 +38,9 @@ export const SHOTPATH = {
   PushSlice: "pushSlice",
 } as const;
 
+export const SHOTPATH_ITER: string[] = Object.values(SHOTPATH);
+export const SHOTPATH_POP: number[] = Array(9).fill(0);
+
 export const SHOTCONTACT = {
   Center: "center",
   Fat: "fat",
@@ -53,6 +56,16 @@ export interface IShot {
   clubType: IShotType;
   shotContact: IShotContact;
   shotPath: IShotPaths;
+  created_at: string;
+}
+
+// type from sql so it matches lowercase column names...
+export interface IShotFromSql {
+  userid: string;
+  clubtype: IShotType;
+  shotcontact: IShotContact;
+  shotpath: IShotPaths;
+  created_at: string;
 }
 
 // Types
