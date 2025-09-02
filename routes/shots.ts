@@ -18,10 +18,10 @@ export const shotDataRoute = new Elysia({ prefix: "/api/data" })
       console.log("Error in post shot data router");
     }
   })
-  .get("/shot", async ({ cookie }) => {
+  .get("/shot/:clubType", async ({ cookie, params }) => {
     try {
       console.log("Getting stats data...");
-      const result = await getShotData(cookie);
+      const result = await getShotData(cookie, params);
       if (!result) {
         console.log("500 for post shot data");
         throw status(500);

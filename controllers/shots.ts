@@ -1,6 +1,11 @@
 import type { TupleType } from "typescript";
 import sql from "../database/config";
-import type { IShot } from "../types/shots";
+import {
+  SHOTPATH_ITER,
+  SHOTPATH_POP,
+  type IShot,
+  type IShotFromSql,
+} from "../types/shots";
 import { verifyToken, verifyTokenHelper } from "../middleware/token";
 import { Cookie } from "elysia";
 
@@ -32,9 +37,10 @@ export const postShotData = async (shotDataBody: IShot[]) => {
   }
 };
 
-// get shot data
+// get shot data for shot paths via club type...
 export const getShotData = async (
-  cookie: Record<string, Cookie<string | undefined>>
+  cookie: Record<string, Cookie<string | undefined>>,
+  params: { clubType: string }
 ) => {
   try {
     console.log("inside getShotData");
@@ -52,14 +58,41 @@ export const getShotData = async (
       return null;
     } else {
       console.log("token user id:", result.id);
-      const queryResult = await sql<IShot[]>`
-        select * from shots where userid = ${result.id}
+      console.log("club type queried for: ", params.clubType);
+      const queryResult = await sql<IShotFromSql[]>`
+        select clubtype, shotcontact, shotpath, created_at from shots where userid = ${result.id} and clubtype = ${params.clubType}
         `;
       console.log("query result shotdata: ", queryResult.columns);
 
-      const rowData: IShot[] = [...queryResult];
+      const rowData: IShotFromSql[] = [...queryResult];
+      console.log("row data nromalzied: ", rowData);
       if (rowData != null || rowData != undefined) {
-        return rowData;
+        // filter number of shotpaths via the clubtype out into number[]
+        // [number,number,number,number,number,number,number,number,number]
+
+        let dataObject = {
+          clubType: params.clubType,
+          dataSet: [0],
+        };
+
+        let zeroArray = [...SHOTPATH_POP];
+
+        console.log("iter array: ", SHOTPATH_ITER);
+
+        console.log("zero array before: ", zeroArray);
+
+        for (let i = 0; i < rowData.length; i++) {
+          const index = SHOTPATH_ITER.indexOf(rowData[i]!.shotpath);
+
+          console.log("shotpath: ", rowData[i]!.shotpath);
+          console.log("index grabbed: ", index);
+          zeroArray[index] = zeroArray[index]! + 1;
+        }
+        dataObject.dataSet = zeroArray;
+        console.log("zero array after: ", zeroArray);
+        console.log("dataObject: ", dataObject);
+
+        return dataObject;
       } else {
         console.log(
           "shot data returning null because query result is null or undefined"
