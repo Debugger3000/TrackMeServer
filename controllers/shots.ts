@@ -1,6 +1,8 @@
 import type { TupleType } from "typescript";
 import sql from "../database/config";
 import {
+  CONTACT_ITER,
+  CONTACT_POP,
   SHOTPATH_ITER,
   SHOTPATH_POP,
   type IShot,
@@ -71,24 +73,44 @@ export const getShotData = async (
         // [number,number,number,number,number,number,number,number,number]
 
         let dataObject = {
-          clubType: params.clubType,
-          dataSet: [0],
+          ishot: {
+            clubType: params.clubType,
+            dataSet: [0],
+          },
+          icontact: {
+            total: 0,
+            dataSet: [0],
+          },
         };
 
+        const dataLength = rowData.length;
+
         let zeroArray = [...SHOTPATH_POP];
+        let zeroArrayContact = [...CONTACT_POP];
 
         console.log("iter array: ", SHOTPATH_ITER);
 
         console.log("zero array before: ", zeroArray);
 
-        for (let i = 0; i < rowData.length; i++) {
+        for (let i = 0; i < dataLength; i++) {
           const index = SHOTPATH_ITER.indexOf(rowData[i]!.shotpath);
 
           console.log("shotpath: ", rowData[i]!.shotpath);
           console.log("index grabbed: ", index);
           zeroArray[index] = zeroArray[index]! + 1;
+
+          // get index for contact array
+          const contactIndex = CONTACT_ITER.indexOf(rowData[i]!.shotcontact);
+          zeroArrayContact[contactIndex] = zeroArrayContact[contactIndex]! + 1;
         }
-        dataObject.dataSet = zeroArray;
+        // set shot array
+        dataObject.ishot.dataSet = zeroArray;
+
+        // set contact array
+        dataObject.icontact.dataSet = zeroArrayContact;
+
+        // set contact total
+        dataObject.icontact.total = dataLength;
         console.log("zero array after: ", zeroArray);
         console.log("dataObject: ", dataObject);
 
