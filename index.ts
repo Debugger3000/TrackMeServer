@@ -8,7 +8,7 @@ import "./database/config.ts";
 import { shotDataRoute } from "./routes/shots.ts";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
-const port = 3000;
+const port = Number(process.env.PORT || 3000);
 const origin =
   process.env.ENVIRONMENT === "prod"
     ? `${process.env.ORIGIN}`
@@ -79,9 +79,12 @@ const app = new Elysia()
   .use(testRoute)
   .listen(port);
 
-export default app;
+const server = Bun.serve({
+  ...app,
+  port,
+});
 
-console.log(`${origin}`);
+console.log(`Server running at ${process.env.ORIGIN}:${server.port}`);
 
 // export default async function handler(req, res) {
 //   const app = new Elysia()
