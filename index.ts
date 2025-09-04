@@ -79,20 +79,16 @@ const app = new Elysia()
   .use(testRoute)
   .listen(port);
 
-console.log(`${origin}`);
-// console.log("connected to db ", client);
+export default app;
 
-// .mapResponse(({ response, set, headers }) => {
-//     console.log("Map response ran");
-//     // const accessToken = headers["x-access-token"];
-//     // console.log("Map response access token on headers: ", accessToken);
-//     console.log("response object: ", response);
-// if exists, then append onto response
-// if (accessToken) {
-//   console.log("access token exists in map response");
-//   if (response instanceof Response) {
-//     console.log("Setting response header with access token");
-//     response.headers.set("x-access-token", accessToken);
-//   }
+console.log(`${origin}`);
+
+// export default async function handler(req, res) {
+//   const app = new Elysia()
+//     .get("/health", async () => {
+//       const [res] = await sql`SELECT NOW()`;
+//       return { dbTime: res };
+//     });
+
+//   return app.handle(req, res);
 // }
-// })
