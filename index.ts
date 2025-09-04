@@ -76,15 +76,16 @@ const app = new Elysia()
   .use(authRoute)
   .use(userRoute)
   .use(shotDataRoute)
-  .use(testRoute)
-  .listen(port);
+  .use(testRoute);
 
-const server = Bun.serve({
-  ...app,
-  port,
-});
+app.listen(port);
 
-console.log(`Server running at ${process.env.ORIGIN}:${server.port}`);
+// const server = Bun.serve({
+//   ...app,
+//   port,
+// });
+
+console.log(`Server running at ${process.env.ORIGIN}:${port}`);
 
 // export default async function handler(req, res) {
 //   const app = new Elysia()
