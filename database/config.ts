@@ -24,16 +24,16 @@ const sql = postgres(connectionString, {
 
 console.log("connected to supabase POSTGRESSQL");
 
-const testConnection = async () => {
-  try {
-    // Simple query to see if DB responds
-    const [res] = await sql`SELECT NOW()`;
-    console.log("✅ Connected! Current DB time:", res);
-  } catch (err) {
-    console.error("❌ Connection failed:", err);
-  }
-};
+// const testConnection = async () => {
+//   try {
+//     // Simple query to see if DB responds
+//     const [res] = await sql`SELECT NOW()`;
+//     console.log("✅ Connected! Current DB time:", res);
+//   } catch (err) {
+//     console.error("❌ Connection failed:", err);
+//   }
+// };
 
-testConnection();
+// testConnection();
 
 export default sql;
