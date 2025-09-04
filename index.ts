@@ -78,7 +78,7 @@ const app = new Elysia()
   .use(shotDataRoute)
   .use(testRoute);
 
-app.listen(port);
+export default app;
 
 // const server = Bun.serve({
 //   ...app,
