@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --env-file=.env.dev --env-file=.env.secrets run index.ts",
-    "prod": "bun --env-file=.env.prod run index.ts"
+    "build": " --env-file=.env.prod bun build --compile --minify-whitespace --minify-syntax --outfile server src/index.ts"
   },
   "private": true,
   "devDependencies": {
