@@ -9,6 +9,10 @@ import { shotDataRoute } from "./routes/shots.ts";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
 const port = 3000;
+const origin =
+  process.env.ENVIRONMENT === "prod"
+    ? `${process.env.ORIGIN}`
+    : `http://localhost:${port}`;
 
 // Elysia
 // passes Context objects which contain (req info)
@@ -75,7 +79,7 @@ const app = new Elysia()
   .use(testRoute)
   .listen(port);
 
-console.log(`Listening on http://localhost:${port} ...`);
+console.log(`${origin}`);
 // console.log("connected to db ", client);
 
 // .mapResponse(({ response, set, headers }) => {
