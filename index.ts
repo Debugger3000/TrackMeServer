@@ -1,10 +1,10 @@
 import { Elysia, status } from "elysia";
 import { cors } from "@elysiajs/cors";
-import { authRoute } from "./routes/auth.ts";
-import { userRoute } from "./routes/user.ts";
-import { verifyToken } from "./middleware/token.ts";
-import "./database/config.ts";
-import { shotDataRoute } from "./routes/shots.ts";
+import { authRoute } from "./routes/auth";
+import { userRoute } from "./routes/user";
+import { verifyToken } from "./middleware/token";
+import "./database/config";
+import { shotDataRoute } from "./routes/shots";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
 const port = Number(process.env.PORT || 3000);
