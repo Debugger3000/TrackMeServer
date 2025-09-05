@@ -1,6 +1,5 @@
-import { Cookie, Elysia, status } from "elysia";
+import { Elysia, status } from "elysia";
 import { cors } from "@elysiajs/cors";
-import { testRoute } from "./routes/test";
 import { authRoute } from "./routes/auth.ts";
 import { userRoute } from "./routes/user.ts";
 import { verifyToken } from "./middleware/token.ts";
@@ -75,8 +74,7 @@ const app = new Elysia()
   .get("/", () => {})
   .use(authRoute)
   .use(userRoute)
-  .use(shotDataRoute)
-  .use(testRoute);
+  .use(shotDataRoute);
 
 export default app;
 
