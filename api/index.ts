@@ -3,7 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { authRoute } from "../routes/auth";
 import { userRoute } from "../routes/user";
 import { verifyToken } from "../middleware/token";
-import "./database/config";
+import "../database/config";
 import { shotDataRoute } from "../routes/shots";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
