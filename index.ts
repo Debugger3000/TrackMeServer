@@ -23,6 +23,7 @@ const app = new Elysia()
       credentials: true,
     })
   )
+  .get("/", () => ({ status: "ok" }))
   .onError(({ code, error }) => {
     console.log("Error was thrown from somewhere: ", code);
     console.log("Error thrown in onError: ", error);
@@ -71,7 +72,6 @@ const app = new Elysia()
     },
   })
 
-  .get("/", () => {})
   .use(authRoute)
   .use(userRoute)
   .use(shotDataRoute);
