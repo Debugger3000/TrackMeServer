@@ -1,4 +1,4 @@
-import type { eighteen_hole_card, ICourse } from "../types/course";
+import type { eighteen_hole_card, ICourse, ICourseView } from "../types/course";
 import sql from "../database/config";
 
 export const postCourseData = async (courseBody: ICourse) => {
@@ -61,17 +61,23 @@ export const postCourseData = async (courseBody: ICourse) => {
   }
 };
 
-export const getCourse = async (courseBody: string) => {
+// simple get a course by its id
+export const getCourseByClub = async (params: { club_name: string }) => {
   console.log("INSIDE GET course poster CONTROLLER");
 
   try {
-    console.log("course search body: ", courseBody);
+    console.log("course search body: ", params.club_name);
 
-    const result = await sql``;
+    const result = await sql<
+      ICourseView[]
+    >`select id, club_name, location, course_name, par, holes from courses where club_name ILIKE ${
+      "%" + params.club_name + "%"
+    }`;
 
-    // console.log("result of query hehe", result);
+    const rowData = [...result];
+    console.log("result of COURSE SEARCH", rowData);
 
-    return { success: true, message: "Course uploaded !" };
+    return rowData;
   } catch (error) {
     console.log("PostShotData controller error: ", error);
     return { success: false, message: "Course upload failed !" };
