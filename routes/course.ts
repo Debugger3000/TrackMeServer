@@ -1,5 +1,5 @@
 import { Elysia, status } from "elysia";
-import { getCourse, postCourseData } from "../controllers/course";
+import { getCourseByClub, postCourseData } from "../controllers/course";
 import type { ICourse } from "../types/course";
 
 export const courseDataRoute = new Elysia({ prefix: "/api/course" })
@@ -18,15 +18,15 @@ export const courseDataRoute = new Elysia({ prefix: "/api/course" })
       console.log("Error in post shot data router");
     }
   })
-  .get("/grab", async ({ body }) => {
+  .get("/grab/:club_name", async ({ params }) => {
     try {
       console.log("In adding course Data");
-      const result = await getCourse(body as string);
-      if (!result.success) {
-        console.log("500 for post shot data");
+      const result = await getCourseByClub(params);
+      if (!result) {
+        console.log("500 for get course by club_name");
         throw status(500);
       } else {
-        console.log("Shot Data has been posted. Returning success.");
+        console.log("course by club_name has been found. Returning to client.");
         return result;
       }
     } catch (error) {

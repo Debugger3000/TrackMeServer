@@ -140,3 +140,11 @@ export interface ICourse<TScoreCard = nine_hole_card | eighteen_hole_card> {
   course_name: string | null;
   score_card: TScoreCard;
 }
+
+export interface ICourseView {
+  club_name: string;
+  holes: THoles;
+  par: number;
+  location: string;
+  course_name: string | null;
+}
