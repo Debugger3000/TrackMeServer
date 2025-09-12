@@ -142,6 +142,7 @@ export interface ICourse<TScoreCard = nine_hole_card | eighteen_hole_card> {
 }
 
 export interface ICourseView {
+  id: number;
   club_name: string;
   holes: THoles;
   par: number;

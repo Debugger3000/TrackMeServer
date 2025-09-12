@@ -6,6 +6,7 @@ import { verifyToken } from "./middleware/token";
 import "./database/config";
 import { shotDataRoute } from "./routes/shots";
 import { courseDataRoute } from "./routes/course";
+import { gameDataRoute } from "./routes/game";
 
 console.log("Environment: ", process.env.ENVIRONMENT);
 const port = Number(process.env.PORT || 3000);
@@ -76,7 +77,8 @@ const app = new Elysia()
   .use(authRoute)
   .use(userRoute)
   .use(shotDataRoute)
-  .use(courseDataRoute);
+  .use(courseDataRoute)
+  .use(gameDataRoute);
 
 export default app;
 
