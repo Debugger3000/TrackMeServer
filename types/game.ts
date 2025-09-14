@@ -49,7 +49,7 @@ type Land_Type =
 
 // each individual golf shot
 // ishot data will need to be expanded out for this game_shot_data table in SQL
-type Game_Shot_Data = {
+export type Game_Shot_Data = {
   hole_id: number;
   user_id: number;
   shot_count: number;
@@ -63,7 +63,8 @@ type Game_Shot_Data = {
 
 // each individual hole data
 // grabs data from 'courses' like PAR + HOLE_NUMBER
-type Hole_Data = {
+export type Hole_Data = {
+  id: number;
   game_id: number;
   user_id: number;
   hole_number: number;
@@ -71,10 +72,10 @@ type Hole_Data = {
   par: number;
   score: number;
   notes: string | null;
-  hole_shot_data: [Game_Shot_Data];
+  hole_shot_data: Game_Shot_Data[] | null;
 };
 
-type Nine_Hole_Data = {
+export type Nine_Hole_Data = {
   hole_one: Hole_Data;
   hole_two: Hole_Data;
   hole_three: Hole_Data;
@@ -86,7 +87,7 @@ type Nine_Hole_Data = {
   hole_nine: Hole_Data;
 };
 
-type Eighteen_Hole_Data = {
+export type Eighteen_Hole_Data = {
   hole_one: Hole_Data;
   hole_two: Hole_Data;
   hole_three: Hole_Data;
@@ -121,6 +122,7 @@ export interface IGame<
   T_Hole_Type = Nine_Hole_Data | Eighteen_Hole_Data,
   TScore_card_type = nine_hole_card | eighteen_hole_card
 > {
+  id: number;
   course: ICourseView;
   user_id: number;
   course_score_card: TScore_card_type;
@@ -143,6 +145,57 @@ export interface IGameView {
   par: number;
   holes: number;
 }
+
+// ----------------
+
+// flip type for when its either 9 or 18 holes for incoming data from DATABASE
+export type MainGameData<H extends THoles> = H extends 18
+  ? IGameMainCall<eighteen_hole_card>
+  : IGameMainCall<nine_hole_card>;
+
+// ----
+
+// game data - Game + course + score_card
+export interface IGameBase {
+  club_name: string;
+  holes: THoles;
+  par: number;
+  location: string;
+  course_name: string | null;
+  id: number;
+  user_id: number;
+  course_id: number;
+
+  status: Status;
+  date: string;
+  score: number;
+  hole_state: number | null;
+  notes: string | null;
+  created_at: string;
+}
+
+// Game + Course + Scorecard data MAIN
+export type IGameMainCall<
+  TScore_card_type = nine_hole_card | eighteen_hole_card
+> = IGameBase & TScore_card_type;
+
+// create all hole data for game row after creation
+
+export type ICreateHoles<
+  TScore_card_type = nine_hole_card | eighteen_hole_card
+> = TScore_card_type;
+
+export type Hole_Data_getter = {
+  id: number;
+  game_id: number;
+  hole_id: number;
+  user_id: number;
+  hole_number: number;
+  putt_count: number;
+  par: number;
+  score: number;
+  notes: string | null;
+};
 
 // do i build a whole game object when game is created ? YES
 

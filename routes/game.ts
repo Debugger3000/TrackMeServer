@@ -1,7 +1,10 @@
 import { Elysia, status } from "elysia";
-import { getCourseByClub, postCourseData } from "../controllers/course";
-import { createGameData, getCurrentGames } from "../controllers/game";
-import type { ICourseView } from "../types/course";
+import {
+  createGameData,
+  getCurrentGames,
+  getGameById,
+} from "../controllers/game";
+import type { ICourseView, THoles } from "../types/course";
 
 export const gameDataRoute = new Elysia({ prefix: "/api/game" })
   .post("/create", async ({ body, cookie }) => {
@@ -19,19 +22,25 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       console.log("Error in post shot data router");
     }
   })
-  .get("/grab/:club_name", async ({ params }) => {
+  .get("/data/:game_id", async ({ params, query }) => {
     try {
       console.log("In adding course Data");
-      const result = await getCourseByClub(params);
+      const holes = Number(query.holes) as THoles;
+      console.log("holes: ", holes);
+
+      if (!holes) {
+        throw status(500);
+      }
+      const result = await getGameById(params, holes);
       if (!result) {
-        console.log("500 for get course by club_name");
+        console.log("500 for get game by id");
         throw status(500);
       } else {
-        console.log("course by club_name has been found. Returning to client.");
+        console.log("Game by id found. Returning to client.");
         return result;
       }
     } catch (error) {
-      console.log("Error in post shot data router");
+      console.log("Error in get game data router");
     }
   })
   .get("/in-progress", async ({ cookie }) => {
