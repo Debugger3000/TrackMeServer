@@ -88,6 +88,7 @@ export type T18_MAP = typeof EIGHTEEN_HOLES_MAP;
 
 export const NINE_ARRAY = Object.values(NINE_HOLES);
 export const EIGHTEEN_ARRAY = Object.values(EIGHTEEN_HOLES);
+export type Eighteen_Key = keyof typeof EIGHTEEN_HOLES;
 
 // TYPES
 // -----------
