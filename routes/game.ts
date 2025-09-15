@@ -24,7 +24,7 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
   })
   .get("/data/:game_id", async ({ params, query }) => {
     try {
-      console.log("In adding course Data");
+      console.log("In GET GAME DATA");
       const holes = Number(query.holes) as THoles;
       console.log("holes: ", holes);
 

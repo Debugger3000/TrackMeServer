@@ -1,3 +1,4 @@
+import sql from "../database/config";
 import {
   EIGHTEEN_HOLES_MAP,
   holes,
@@ -91,3 +92,61 @@ type parse_course = {
   holes: THoles;
   course_name: string | null;
 };
+
+// -------------------- query for nine or eighteen holes...
+export async function getGameObject(holes: THoles, game_id: string) {
+  try {
+    if (holes === 9) {
+      const result = await sql<MainGameData<typeof holes>[]>`SELECT 
+    g.id,
+    g.user_id,
+    g.course_id,
+    g.status,
+    g.score,
+    g.par,
+    g.holes,
+    g.hole_state,
+    g.notes,
+    g.created_at,
+    c.club_name,
+    c.course_name,
+    c.location,
+    sc.*
+  FROM games g
+  JOIN courses c 
+    ON g.course_id = c.id
+  JOIN nine_score_cards sc
+    ON g.course_id = sc.course_id
+  WHERE g.id = ${game_id}
+    `;
+
+      return result;
+    } else {
+      const result = await sql<MainGameData<typeof holes>[]>`SELECT 
+    g.id,
+    g.user_id,
+    g.course_id,
+    g.status,
+    g.score,
+    g.par,
+    g.holes,
+    g.hole_state,
+    g.notes,
+    g.created_at,
+    c.club_name,
+    c.course_name,
+    c.location,
+    sc.*
+  FROM games g
+  JOIN courses c 
+    ON g.course_id = c.id
+  JOIN eighteen_score_cards sc
+    ON g.course_id = sc.course_id
+  WHERE g.id = ${game_id}
+    `;
+      return result;
+    }
+  } catch (error) {
+    return null;
+  }
+}
