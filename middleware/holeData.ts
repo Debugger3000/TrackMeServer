@@ -8,7 +8,12 @@ import {
   type T9_MAP,
   type THoles,
 } from "../types/course";
-import type { Game_Shot_Data, Hole_Data, Nine_Hole_Data } from "../types/game";
+import type {
+  Eighteen_Hole_Data,
+  Game_Shot_Data,
+  Hole_Data,
+  Nine_Hole_Data,
+} from "../types/game";
 
 export async function createEightHoles(
   game_id: number,
@@ -82,6 +87,36 @@ export function cleanHoleData(
         hole_seven: holesWithShots[6]!,
         hole_eight: holesWithShots[7]!,
         hole_nine: holesWithShots[8]!,
+      };
+
+      return holeMap;
+    }
+  } else {
+    const holesWithShots: Hole_Data[] = holes_array.map((hole) => ({
+      ...hole,
+      hole_shot_data: shots_array.filter((s) => s.hole_id === hole.id) || null,
+    }));
+
+    if (holesWithShots) {
+      const holeMap: Eighteen_Hole_Data = {
+        hole_one: holesWithShots[0]!,
+        hole_two: holesWithShots[1]!,
+        hole_three: holesWithShots[2]!,
+        hole_four: holesWithShots[3]!,
+        hole_five: holesWithShots[4]!,
+        hole_six: holesWithShots[5]!,
+        hole_seven: holesWithShots[6]!,
+        hole_eight: holesWithShots[7]!,
+        hole_nine: holesWithShots[8]!,
+        hole_ten: holesWithShots[9]!,
+        hole_eleven: holesWithShots[10]!,
+        hole_twelve: holesWithShots[11]!,
+        hole_thirteen: holesWithShots[12]!,
+        hole_fourteen: holesWithShots[13]!,
+        hole_fifteen: holesWithShots[14]!,
+        hole_sixteen: holesWithShots[15]!,
+        hole_seventeen: holesWithShots[16]!,
+        hole_eighteen: holesWithShots[17]!,
       };
 
       return holeMap;

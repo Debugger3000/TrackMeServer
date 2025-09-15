@@ -41,10 +41,11 @@ const app = new Elysia()
     }
   })
   .guard({
-    beforeHandle({ cookie, headers, path, set }) {
+    beforeHandle({ cookie, headers, path, params }) {
       // if paths include login or register then we dont need to check any tokens
       // but, if /checkStartSession is run, then we can simply
       console.log("path on before Handle: ", path);
+      console.log("params on before Handle: ", params);
       if (
         !(
           path.includes("/login") ||

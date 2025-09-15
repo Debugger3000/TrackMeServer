@@ -21,7 +21,11 @@ import {
   type MainGameData,
   type Nine_Hole_Data,
 } from "../types/game";
-import { getCourseData, getScoreCard } from "../middleware/gameData";
+import {
+  getCourseData,
+  getGameObject,
+  getScoreCard,
+} from "../middleware/gameData";
 import { main } from "bun";
 import {
   cleanHoleData,
@@ -190,34 +194,14 @@ export const getGameById = async (
     const score_card_table =
       holes === 18 ? "eighteen_score_cards" : "nine_score_cards";
 
-    const result = await sql<MainGameData<typeof holes>[]>`SELECT 
-    g.id,
-    g.user_id,
-    g.course_id,
-    g.status,
-    g.score,
-    g.par,
-    g.holes,
-    g.hole_state,
-    g.notes,
-    g.created_at,
-    c.club_name,
-    c.course_name,
-    c.location,
-    sc.*
-  FROM games g
-  JOIN courses c 
-    ON g.course_id = c.id
-  JOIN nine_score_cards sc
-    ON g.course_id = sc.course_id
-  WHERE g.id = ${game_id}
-    `;
+    // get game object by sql query
+    const result = await getGameObject(holes, game_id);
 
-    const main_q = result[0];
-    if (!main_q) {
+    if (!result || !result[0]) {
       console.log("First game query object is null or undefined...");
       return null;
     }
+    const main_q = result[0];
     console.log("result of query hehe", [...result]);
     console.log("result of main game query: ", main_q);
 
@@ -230,14 +214,13 @@ export const getGameById = async (
     console.log("course_sorted after sorting: ", course_sorted);
 
     // Grab holes first, cause we need to aggregates shots to holes
-    // if no hole records, we create first hole record for game...
     const check_holes = await sql`
       select id, user_id, game_id, hole_number, putt_count, par, score, notes 
       from holes where game_id = ${game_id}
       ORDER BY hole_number
     `;
 
-    console.log("get holes data HEHEHAHA: ", [...check_holes]);
+    // console.log("get holes data HEHEHAHA: ", [check_holes]);
 
     const holes_array = [...check_holes] as Hole_Data[];
 
@@ -248,7 +231,7 @@ export const getGameById = async (
         WHERE game_id = ${game_id}
         ORDER BY hole_id;
     `;
-    console.log("get shots data: ", [...shot_data]);
+    // console.log("get shots data: ", [...shot_data]);
 
     const shots_array = [...shot_data] as Game_Shot_Data[];
 
