@@ -1,6 +1,11 @@
 import { Elysia, status } from "elysia";
-import { getShotData, postShotData } from "../controllers/shots";
+import {
+  getShotData,
+  postGameShotData,
+  postShotData,
+} from "../controllers/shots";
 import type { IShot } from "../types/shots";
+import type { Game_Shot_Data_Submit } from "../types/game";
 
 export const shotDataRoute = new Elysia({ prefix: "/api/data" })
   .post("/shot", async ({ body }) => {
@@ -31,5 +36,20 @@ export const shotDataRoute = new Elysia({ prefix: "/api/data" })
       }
     } catch (error) {
       console.log("Error in get user info router");
+    }
+  })
+  .post("/game-shot", async ({ body }) => {
+    try {
+      console.log("In adding GAME shot Data");
+      const result = await postGameShotData(body as Game_Shot_Data_Submit);
+      if (!result.success) {
+        console.log("500 for post GAME shot data");
+        throw status(500);
+      } else {
+        console.log("GAME Shot Data has been posted. Returning success.");
+        return result;
+      }
+    } catch (error) {
+      console.log("Error in post GAME shot data router");
     }
   });

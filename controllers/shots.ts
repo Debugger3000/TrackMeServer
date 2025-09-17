@@ -1,4 +1,3 @@
-import type { TupleType } from "typescript";
 import sql from "../database/config";
 import {
   CONTACT_ITER,
@@ -10,6 +9,7 @@ import {
 } from "../types/shots";
 import { verifyToken, verifyTokenHelper } from "../middleware/token";
 import { Cookie } from "elysia";
+import type { Game_Shot_Data_Submit } from "../types/game";
 
 export const postShotData = async (shotDataBody: IShot[]) => {
   console.log("INSIDE shots CONTROLLER");
@@ -125,5 +125,46 @@ export const getShotData = async (
     }
   } catch (error) {
     console.log("getShotData error: ", error);
+  }
+};
+
+// GAME SHOT POST
+// -----------------
+//
+export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
+  console.log("INSIDE GAME shots CONTROLLER");
+
+  try {
+    console.log("ShotData GAMER : ", body);
+
+    const objecter = {
+      hole_id: Number(body.hole_id),
+      user_id: Number(body.user_id),
+      game_id: Number(body.game_id),
+      shot_count: Number(body.shot_count),
+      club_type: body.club_type ?? undefined,
+      shot_contact: body.shot_contact,
+      shot_path: body.shot_path,
+      start_lat: body.start_lat ?? null,
+      start_lng: body.start_lng ?? null,
+      end_lat: body.end_lat ?? null,
+      end_lng: body.end_lng ?? null,
+      land_type: body.land_type ?? null,
+      yards: body.yards ?? null,
+      metres: body.metres ?? null,
+    };
+
+    const result = await sql`
+  INSERT INTO game_shots 
+  ${sql([objecter])}
+  RETURNING id
+`;
+
+    console.log("result of query hehe", result);
+
+    return { success: true, message: "GAME Shot uploaded successfully !" };
+  } catch (error) {
+    console.log("PostGAMEShotData controller error: ", error);
+    return { success: false, message: "Server post GAME shot data Error" };
   }
 };
