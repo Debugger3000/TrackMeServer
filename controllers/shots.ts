@@ -152,6 +152,7 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
       land_type: body.land_type ?? null,
       yards: body.yards ?? null,
       metres: body.metres ?? null,
+      stroke: body.stroke,
     };
 
     const result = await sql`

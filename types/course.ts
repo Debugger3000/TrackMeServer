@@ -150,3 +150,11 @@ export interface ICourseView {
   location: string;
   course_name: string | null;
 }
+
+export interface ICourseGameReturn {
+  club_name: string;
+  holes: THoles;
+  par: number;
+  location: string;
+  course_name: string | null;
+}

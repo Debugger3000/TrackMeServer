@@ -1,6 +1,7 @@
 import type {
   eighteen_hole_card,
   ICourse,
+  ICourseGameReturn,
   ICourseView,
   nine_hole_card,
   THoles,
@@ -74,6 +75,7 @@ export type Game_Shot_Data_Submit = {
   end_lat: number | null;
   end_lng: number | null;
   land_type: Land_Type | null;
+  stroke: number;
   yards: number | null;
   metres: number | null;
 };
@@ -149,6 +151,29 @@ export interface IGame<
   hole_data: T_Hole_Type;
   hole_state: number | null;
   notes: string | null;
+}
+
+export interface IGameObjectReturn {
+  id: number;
+  course: ICourseGameReturn;
+  user_id: number;
+  status: Status;
+  date: string;
+  score: number;
+  hole_state: number | null;
+  notes: string | null;
+}
+
+export interface IGameReturnNine {
+  game_object: IGameObjectReturn;
+  score_card_data: nine_hole_card;
+  hole_data: Nine_Hole_Data;
+}
+
+export interface IGameReturnEight {
+  game_object: IGameObjectReturn;
+  score_card_data: eighteen_hole_card;
+  hole_data: Eighteen_Hole_Data;
 }
 
 export interface IGameView {
