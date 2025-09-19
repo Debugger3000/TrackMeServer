@@ -2,7 +2,8 @@ import { Elysia, status } from "elysia";
 import {
   createGameData,
   getCurrentGames,
-  getGameById,
+  getEightGameById,
+  getNineGameById,
 } from "../controllers/game";
 import type { ICourseView, THoles } from "../types/course";
 
@@ -31,13 +32,28 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       if (!holes) {
         throw status(500);
       }
-      const result = await getGameById(params, holes);
-      if (!result) {
-        console.log("500 for get game by id");
-        throw status(500);
-      } else {
-        console.log("Game by id found. Returning to client.");
-        return result;
+
+      // go nine
+      if (holes === 9) {
+        const result = await getNineGameById(params);
+        if (!result) {
+          console.log("500 for get game by id");
+          throw status(500);
+        } else {
+          console.log("Game by id found. Returning to client.");
+          return result;
+        }
+      }
+      // go eight
+      else {
+        const result = await getEightGameById(params);
+        if (!result) {
+          console.log("500 for get game by id");
+          throw status(500);
+        } else {
+          console.log("Game by id found. Returning to client.");
+          return result;
+        }
       }
     } catch (error) {
       console.log("Error in get game data router");

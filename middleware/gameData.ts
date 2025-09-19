@@ -11,7 +11,7 @@ import {
   type T9_MAP,
   type THoles,
 } from "../types/course";
-import type { MainGameData } from "../types/game";
+import type { IGame, IGameBase, MainGameData } from "../types/game";
 
 let EIGHTEEN_HOLES = {
   hole_one: 0,
@@ -46,32 +46,37 @@ let NINE_HOLES = {
   hole_nine: 0,
 };
 
-export function getScoreCard(data: MainGameData<THoles>, holes: THoles) {
-  if (holes === 18) {
-    const score_card: eighteen_hole_card = EIGHTEEN_HOLES;
-    const hole_map: T18_MAP = EIGHTEEN_HOLES_MAP;
+// ---------
+// Get score cards
 
-    const data_p = data as MainGameData<typeof holes>;
+export function getScoreCardNine(data: IGameBase) {
+  const score_card: nine_hole_card = NINE_HOLES;
+  const hole_map: T9_MAP = NINE_HOLES_MAP;
 
-    for (const key of hole_map) {
-      score_card[key] = data_p[key];
-    }
-    return score_card;
-  } else {
-    const score_card: nine_hole_card = NINE_HOLES;
-    const hole_map: T9_MAP = NINE_HOLES_MAP;
+  const data_p = data as MainGameData<9>;
 
-    const data_p = data as MainGameData<typeof holes>;
-
-    for (const key of hole_map) {
-      score_card[key] = data_p[key];
-    }
-    return score_card;
+  for (const key of hole_map) {
+    score_card[key] = data_p[key];
   }
+  return score_card;
 }
 
-export function getCourseData(data: MainGameData<THoles>, holes: THoles) {
-  const data_p = data as MainGameData<typeof holes>;
+export function getScoreCardEight(data: IGameBase) {
+  const score_card: eighteen_hole_card = EIGHTEEN_HOLES;
+  const hole_map: T18_MAP = EIGHTEEN_HOLES_MAP;
+
+  const data_p = data as MainGameData<18>;
+
+  for (const key of hole_map) {
+    score_card[key] = data_p[key];
+  }
+  return score_card;
+}
+
+// ---------------------------------------
+
+export function getCourseData(data: IGameBase) {
+  const data_p = data as IGameBase;
   let course_data: parse_course = {
     club_name: data_p.club_name,
     location: data_p.location,
@@ -94,10 +99,9 @@ type parse_course = {
 };
 
 // -------------------- query for nine or eighteen holes...
-export async function getGameObject(holes: THoles, game_id: string) {
+export async function getGameObjectNine(game_id: string) {
   try {
-    if (holes === 9) {
-      const result = await sql<MainGameData<typeof holes>[]>`SELECT 
+    const result = await sql<IGameBase[]>`SELECT 
     g.id,
     g.user_id,
     g.course_id,
@@ -120,9 +124,15 @@ export async function getGameObject(holes: THoles, game_id: string) {
   WHERE g.id = ${game_id}
     `;
 
-      return result;
-    } else {
-      const result = await sql<MainGameData<typeof holes>[]>`SELECT 
+    return result;
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function getGameObjectEight(game_id: string) {
+  try {
+    const result = await sql<IGameBase[]>`SELECT 
     g.id,
     g.user_id,
     g.course_id,
@@ -144,8 +154,7 @@ export async function getGameObject(holes: THoles, game_id: string) {
     ON g.course_id = sc.course_id
   WHERE g.id = ${game_id}
     `;
-      return result;
-    }
+    return result;
   } catch (error) {
     return null;
   }

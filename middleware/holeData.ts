@@ -63,63 +63,65 @@ export async function createNineHoles(
 }
 
 // clean hole + shot data...
-export function cleanHoleData(
-  holes: THoles,
+export function cleanHoleDataNine(
   holes_array: Hole_Data[],
   shots_array: Game_Shot_Data[]
 ) {
-  if (holes === 9) {
-    // build out nine_hole_data
+  // build out nine_hole_data
 
-    const holesWithShots: Hole_Data[] = holes_array.map((hole) => ({
-      ...hole,
-      hole_shot_data: shots_array.filter((s) => s.hole_id === hole.id) || null,
-    }));
+  const holesWithShots: Hole_Data[] = holes_array.map((hole) => ({
+    ...hole,
+    hole_shot_data: shots_array.filter((s) => s.hole_id === hole.id) || null,
+  }));
 
-    if (holesWithShots) {
-      const holeMap: Nine_Hole_Data = {
-        hole_one: holesWithShots[0]!,
-        hole_two: holesWithShots[1]!,
-        hole_three: holesWithShots[2]!,
-        hole_four: holesWithShots[3]!,
-        hole_five: holesWithShots[4]!,
-        hole_six: holesWithShots[5]!,
-        hole_seven: holesWithShots[6]!,
-        hole_eight: holesWithShots[7]!,
-        hole_nine: holesWithShots[8]!,
-      };
+  if (holesWithShots) {
+    const holeMap: Nine_Hole_Data = {
+      hole_one: holesWithShots[0]!,
+      hole_two: holesWithShots[1]!,
+      hole_three: holesWithShots[2]!,
+      hole_four: holesWithShots[3]!,
+      hole_five: holesWithShots[4]!,
+      hole_six: holesWithShots[5]!,
+      hole_seven: holesWithShots[6]!,
+      hole_eight: holesWithShots[7]!,
+      hole_nine: holesWithShots[8]!,
+    };
 
-      return holeMap;
-    }
-  } else {
-    const holesWithShots: Hole_Data[] = holes_array.map((hole) => ({
-      ...hole,
-      hole_shot_data: shots_array.filter((s) => s.hole_id === hole.id) || null,
-    }));
+    return holeMap;
+  }
+}
 
-    if (holesWithShots) {
-      const holeMap: Eighteen_Hole_Data = {
-        hole_one: holesWithShots[0]!,
-        hole_two: holesWithShots[1]!,
-        hole_three: holesWithShots[2]!,
-        hole_four: holesWithShots[3]!,
-        hole_five: holesWithShots[4]!,
-        hole_six: holesWithShots[5]!,
-        hole_seven: holesWithShots[6]!,
-        hole_eight: holesWithShots[7]!,
-        hole_nine: holesWithShots[8]!,
-        hole_ten: holesWithShots[9]!,
-        hole_eleven: holesWithShots[10]!,
-        hole_twelve: holesWithShots[11]!,
-        hole_thirteen: holesWithShots[12]!,
-        hole_fourteen: holesWithShots[13]!,
-        hole_fifteen: holesWithShots[14]!,
-        hole_sixteen: holesWithShots[15]!,
-        hole_seventeen: holesWithShots[16]!,
-        hole_eighteen: holesWithShots[17]!,
-      };
+export function cleanHoleDataEight(
+  holes_array: Hole_Data[],
+  shots_array: Game_Shot_Data[]
+) {
+  const holesWithShots: Hole_Data[] = holes_array.map((hole) => ({
+    ...hole,
+    hole_shot_data: shots_array.filter((s) => s.hole_id === hole.id) || null,
+  }));
 
-      return holeMap;
-    }
+  if (holesWithShots) {
+    const holeMap: Eighteen_Hole_Data = {
+      hole_one: holesWithShots[0]!,
+      hole_two: holesWithShots[1]!,
+      hole_three: holesWithShots[2]!,
+      hole_four: holesWithShots[3]!,
+      hole_five: holesWithShots[4]!,
+      hole_six: holesWithShots[5]!,
+      hole_seven: holesWithShots[6]!,
+      hole_eight: holesWithShots[7]!,
+      hole_nine: holesWithShots[8]!,
+      hole_ten: holesWithShots[9]!,
+      hole_eleven: holesWithShots[10]!,
+      hole_twelve: holesWithShots[11]!,
+      hole_thirteen: holesWithShots[12]!,
+      hole_fourteen: holesWithShots[13]!,
+      hole_fifteen: holesWithShots[14]!,
+      hole_sixteen: holesWithShots[15]!,
+      hole_seventeen: holesWithShots[16]!,
+      hole_eighteen: holesWithShots[17]!,
+    };
+
+    return holeMap;
   }
 }

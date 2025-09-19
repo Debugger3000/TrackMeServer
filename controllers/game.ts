@@ -16,19 +16,25 @@ import {
   type Hole_Data,
   type ICreateHoles,
   type IGame,
+  type IGameBase,
   type IGameMainCall,
+  type IGameReturnEight,
+  type IGameReturnNine,
   type IGameView,
   type MainGameData,
   type Nine_Hole_Data,
 } from "../types/game";
 import {
   getCourseData,
-  getGameObject,
-  getScoreCard,
+  getGameObjectEight,
+  getGameObjectNine,
+  getScoreCardEight,
+  getScoreCardNine,
 } from "../middleware/gameData";
 import { main } from "bun";
 import {
-  cleanHoleData,
+  cleanHoleDataEight,
+  cleanHoleDataNine,
   createEightHoles,
   createNineHoles,
 } from "../middleware/holeData";
@@ -179,23 +185,14 @@ export const getCurrentGames = async (
 
 // Get game data
 // Going to grab data from several tables and join it all together...
-export const getGameById = async (
-  params: { game_id: string },
-  holes: THoles
-) => {
+export const getNineGameById = async (params: { game_id: string }) => {
   console.log("INSIDE GET game poster CONTROLLER");
 
   try {
     const game_id = params.game_id;
     console.log("game id: ", params.game_id);
-    console.log("holes on game card: ", holes);
-
-    // set course variable for what score card to grab
-    const score_card_table =
-      holes === 18 ? "eighteen_score_cards" : "nine_score_cards";
-
     // get game object by sql query
-    const result = await getGameObject(holes, game_id);
+    const result = await getGameObjectNine(game_id);
 
     if (!result || !result[0]) {
       console.log("First game query object is null or undefined...");
@@ -206,9 +203,9 @@ export const getGameById = async (
     console.log("result of main game query: ", main_q);
 
     // sort score card data into one object
-    const score_card_sorted = getScoreCard(main_q, holes);
+    const score_card_sorted = getScoreCardNine(main_q);
     // sort course data into one object
-    const course_sorted = getCourseData(main_q, holes);
+    const course_sorted = getCourseData(main_q);
 
     console.log("course_score_card after sorting: ", score_card_sorted);
     console.log("course_sorted after sorting: ", course_sorted);
@@ -236,31 +233,110 @@ export const getGameById = async (
     const shots_array = [...shot_data] as Game_Shot_Data[];
 
     // send the data to a function to get cleaned and then send back, in game object...
-    const hole_data_return = cleanHoleData(holes, holes_array, shots_array);
+    const hole_data_return = cleanHoleDataNine(holes_array, shots_array);
 
     console.log("clearn shot+hole data: ", hole_data_return);
 
-    const final_game_object: IGame<Nine_Hole_Data, nine_hole_card> = {
-      id: main_q?.id,
-      course: {
-        id: main_q.course_id,
-        club_name: main_q.club_name,
-        holes: main_q.holes,
-        location: main_q.location,
-        course_name: main_q.course_name,
-        par: main_q.par,
-      },
-      user_id: main_q?.user_id,
-      course_score_card: score_card_sorted,
-      status: main_q?.status,
-      date: main_q?.created_at,
-      score: main_q?.score,
-      hole_state: main_q?.hole_state,
-      notes: main_q?.notes,
-      hole_data: hole_data_return!,
-    };
+    // make sure neither score card or hole data are undefined...
+    if (!score_card_sorted || !hole_data_return) {
+      return { success: false, message: "Course upload failed !" };
+    }
 
-    return { final_game_object };
+    // return three different objects (IGame, Scorecard and Hole_data)
+    return {
+      game_object: {
+        id: main_q?.id,
+        course: course_sorted,
+        user_id: main_q?.user_id,
+        status: main_q?.status,
+        date: main_q?.created_at,
+        score: main_q?.score,
+        hole_state: main_q.hole_state,
+        notes: main_q?.notes,
+      },
+      score_card_data: score_card_sorted,
+      hole_data: hole_data_return,
+    };
+  } catch (error) {
+    console.log("PostShotData controller error: ", error);
+    return { success: false, message: "Course upload failed !" };
+  }
+};
+
+export const getEightGameById = async (params: { game_id: string }) => {
+  console.log("INSIDE GET game for EIGHT poster CONTROLLER");
+
+  try {
+    const game_id = params.game_id;
+    console.log("game id: ", params.game_id);
+
+    // get game object by sql query
+    const result = await getGameObjectEight(game_id);
+
+    if (!result || !result[0]) {
+      console.log("First game query object is null or undefined...");
+      return null;
+    }
+    const main_q = result[0];
+    console.log("result of query hehe", [...result]);
+    console.log("result of main game query: ", main_q);
+
+    // sort score card data into one object
+    const score_card_sorted = getScoreCardEight(main_q);
+    // sort course data into one object
+    const course_sorted = getCourseData(main_q);
+
+    console.log("course_score_card after sorting: ", score_card_sorted);
+    // console.log("course_sorted after sorting: ", course_sorted);
+
+    // Grab holes first, cause we need to aggregates shots to holes
+    const check_holes = await sql`
+      select id, user_id, game_id, hole_number, putt_count, par, score, notes 
+      from holes where game_id = ${game_id}
+      ORDER BY hole_number
+    `;
+
+    // console.log("get holes data HEHEHAHA: ", [check_holes]);
+
+    const holes_array = [...check_holes] as Hole_Data[];
+
+    // get hole + shot data for the game
+    const shot_data = await sql`
+        SELECT *
+        from game_shots
+        WHERE game_id = ${game_id}
+        ORDER BY hole_id;
+    `;
+    // console.log("get shots data: ", [...shot_data]);
+
+    const shots_array = [...shot_data] as Game_Shot_Data[];
+
+    // send the data to a function to get cleaned and then send back, in game object...
+    const hole_data_return = cleanHoleDataEight(holes_array, shots_array);
+
+    // console.log("clearn shot+hole data: ", hole_data_return);
+
+    // make sure neither score card or hole data are undefined...
+    if (!score_card_sorted || !hole_data_return) {
+      return { success: false, message: "Course upload failed !" };
+    }
+
+    // return three different objects (IGame, Scorecard and Hole_data)
+
+    return {
+      game_object: {
+        id: main_q?.id,
+        course: course_sorted,
+        user_id: main_q?.user_id,
+        status: main_q?.status,
+        date: main_q?.created_at,
+        score: main_q?.score,
+        hole_state: main_q?.hole_state,
+        notes: main_q?.notes,
+      },
+      score_card_data: score_card_sorted,
+      hole_data: hole_data_return,
+    };
   } catch (error) {
     console.log("PostShotData controller error: ", error);
     return { success: false, message: "Course upload failed !" };
