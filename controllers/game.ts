@@ -311,6 +311,8 @@ export const getEightGameById = async (params: { game_id: string }) => {
 
     const shots_array = [...shot_data] as Game_Shot_Data[];
 
+    console.log("shots array: ", shots_array);
+
     // send the data to a function to get cleaned and then send back, in game object...
     const hole_data_return = cleanHoleDataEight(holes_array, shots_array);
 
