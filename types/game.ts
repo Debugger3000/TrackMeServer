@@ -250,3 +250,13 @@ export type Hole_Data_getter = {
 // hole data is saved when COMPLETE is clicked...
 
 // Last hole, will say COMPLETE GAME, then hole is saved, and game is completed, and status is changed to 'COMPLETE'
+
+export type Hole_Submit = {
+  id: number;
+  putt_count: number;
+  score: number;
+  notes: string | null;
+  game_id: number;
+  hole_state: number;
+  game_score: number;
+};

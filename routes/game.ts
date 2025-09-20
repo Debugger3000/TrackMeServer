@@ -6,6 +6,8 @@ import {
   getNineGameById,
 } from "../controllers/game";
 import type { ICourseView, THoles } from "../types/course";
+import { patchGameHole } from "../controllers/hole";
+import type { Hole_Submit } from "../types/game";
 
 export const gameDataRoute = new Elysia({ prefix: "/api/game" })
   .post("/create", async ({ body, cookie }) => {
@@ -74,5 +76,20 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       }
     } catch (error) {
       console.log("Error in get inprogress games data router");
+    }
+  })
+  .patch("/hole", async ({ body }) => {
+    try {
+      console.log("Patching a hole...");
+      const result = await patchGameHole(body as Hole_Submit);
+      if (!result) {
+        console.log("500 for patch a game hole");
+        throw status(500);
+      } else {
+        console.log("Patched a hole... Returning to client.");
+        return result;
+      }
+    } catch (error) {
+      console.log("Error in patch hole in games data router");
     }
   });
