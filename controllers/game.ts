@@ -132,6 +132,63 @@ export const createGameData = async (
   }
 };
 
+// --------
+// GET COMPLETE games
+// ------
+
+// -----------------
+export const getCompleteGames = async (
+  cookie: Record<string, Cookie<string | undefined>>
+) => {
+  try {
+    console.log("id for user to get IN-PROGRESS games: ", cookie);
+
+    const access_secret = process.env.JWT_ACCESS_SECRET;
+
+    const accessTokenResult = verifyTokenHelper(
+      cookie.accessToken?.value,
+      access_secret
+    );
+    if (accessTokenResult === "BAD_TOKEN" || accessTokenResult === undefined) {
+      return {
+        success: false,
+        message: "Access token error in createGameData",
+        id: "",
+      };
+    }
+    const user_id = accessTokenResult.id;
+    console.log("user id before get current games: ", user_id);
+
+    const result = await sql<IGameView[]>`
+  SELECT 
+    g.id,
+    g.user_id,
+    g.course_id,
+    g.status,
+    g.score,
+    g.par,
+    g.holes,
+    c.club_name
+  FROM games g
+  JOIN courses c 
+    ON g.course_id = c.id
+  WHERE g.status = ${GAME_STATUS.complete}
+    AND g.user_id = ${user_id};
+`;
+
+    // console.log("result of get current games query before: ", result);
+    const games = [...result];
+
+    console.log("result of get current games query", games);
+
+    return games;
+  } catch (error) {
+    console.log("PostShotData controller error: ", error);
+    return [];
+  }
+};
+// ------
+
 export const getCurrentGames = async (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
@@ -182,6 +239,10 @@ export const getCurrentGames = async (
     return [];
   }
 };
+
+// ---------------
+
+// ----------------------------------------------------------------------------------
 
 // Get game data
 // Going to grab data from several tables and join it all together...
@@ -263,6 +324,10 @@ export const getNineGameById = async (params: { game_id: string }) => {
   }
 };
 
+// EIGHTEEN GAME DATA
+//
+
+// --------------------------
 export const getEightGameById = async (params: { game_id: string }) => {
   console.log("INSIDE GET game for EIGHT poster CONTROLLER");
 
