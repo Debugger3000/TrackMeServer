@@ -260,3 +260,10 @@ export type Hole_Submit = {
   hole_state: number;
   game_score: number;
 };
+
+export type Game_Shot_Delete = {
+  hole_id: number;
+  user_id: number;
+  game_id: number;
+  shot_count: number;
+};

@@ -9,7 +9,7 @@ import {
 } from "../types/shots";
 import { verifyToken, verifyTokenHelper } from "../middleware/token";
 import { Cookie } from "elysia";
-import type { Game_Shot_Data_Submit } from "../types/game";
+import type { Game_Shot_Data_Submit, Game_Shot_Delete } from "../types/game";
 
 export const postShotData = async (shotDataBody: IShot[]) => {
   console.log("INSIDE shots CONTROLLER");
@@ -167,5 +167,29 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
   } catch (error) {
     console.log("PostGAMEShotData controller error: ", error);
     return { success: false, message: "Server post GAME shot data Error" };
+  }
+};
+
+// delete a game shot data hehe
+export const deleteGameShotData = async (body: Game_Shot_Delete) => {
+  try {
+    console.log("delete game shot body hehe: ", body);
+
+    const result = await sql`
+      DELETE FROM game_shots
+      WHERE game_id = ${body.game_id}
+        AND hole_id = ${body.hole_id}
+        AND user_id = ${body.user_id}
+        AND shot_count = ${body.shot_count}
+      RETURNING id;
+    `;
+
+    return { success: true, message: "GAME Shot deleted successfully !" };
+  } catch (error) {
+    console.log("delete shot controller error: ", error);
+    return {
+      success: false,
+      message: "Server post DELETE GAME shot data Error",
+    };
   }
 };
