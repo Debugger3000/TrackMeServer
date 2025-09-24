@@ -19,11 +19,13 @@ export const patchGameHole = async (holeBody: Hole_Submit) => {
 
     console.log("Hole_STATE PATCH... ", holeBody.hole_state);
     // if its last hole for 18 or 9, we need to set game_status to COMPLETE
+    // reset hole state so when you view finished game, you start on hole 1...
     if (holeBody.hole_state === 18 || holeBody.hole_state === 9) {
       console.log("Running game completion hole patch...");
       const [updatedGame] = await sql`
       UPDATE games
       SET score = ${holeBody.game_score},
+      hole_state = 1,
           status = 'COMPLETE'
       WHERE id = ${holeBody.game_id}
       RETURNING *;
