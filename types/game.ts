@@ -181,7 +181,7 @@ export interface IGameView {
   course_id: number;
   user_id: number;
   status: Status;
-  date: string;
+  created_at: string;
   score: number;
   club_name: string;
   par: number;

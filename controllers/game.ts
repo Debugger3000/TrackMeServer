@@ -168,6 +168,7 @@ export const getCompleteGames = async (
     g.score,
     g.par,
     g.holes,
+    g.created_at,
     c.club_name
   FROM games g
   JOIN courses c 
@@ -220,6 +221,7 @@ export const getCurrentGames = async (
     g.score,
     g.par,
     g.holes,
+    g.created_at,
     c.club_name
   FROM games g
   JOIN courses c 
