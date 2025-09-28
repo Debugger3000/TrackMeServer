@@ -20,7 +20,7 @@ export const verifyToken = (
     // verify refresh token here.
 
     const refreshToken = cookie!.refreshToken?.value;
-    console.log("refresh token in verifyToken(): ", refreshToken);
+    // console.log("refresh token in verifyToken(): ", refreshToken);
     // returns the decoded payload for refresh token
     // if bad payload, then this throws error and status 500 sent back to client
     const refreshTokenResult = verifyTokenHelper(refreshToken, refresh_secret);
@@ -99,7 +99,7 @@ export function verifyTokenHelper(
   try {
     if (token && secret) {
       console.log("verify token paramter: ");
-      console.log("secret param: ");
+      // console.log("secret param: ");
       const payload = jwt.verify(token, secret) as jwt.JwtPayload;
       return payload;
     } else {
