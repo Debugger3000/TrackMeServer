@@ -25,7 +25,7 @@ type Coordinates = {
   longitude: number;
   latitude: number;
 };
-type Land_Type =
+export type Land_Type =
   | "fairway"
   | "rough"
   | "green"

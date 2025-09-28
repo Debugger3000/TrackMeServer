@@ -9,6 +9,7 @@ import {
 import type { ICourseView, THoles } from "../types/course";
 import { patchGameHole, patchPreviousGameHole } from "../controllers/hole";
 import type { Hole_Submit } from "../types/game";
+import { getGamesBySearch, getGameStats } from "../controllers/game-stats";
 
 export const gameDataRoute = new Elysia({ prefix: "/api/game" })
   .post("/create", async ({ body, cookie }) => {
@@ -24,6 +25,21 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       }
     } catch (error) {
       console.log("Error in post shot data router");
+    }
+  })
+  .get("/stats/:timeFilter", async ({ params, cookie }) => {
+    try {
+      console.log("In GAMES STATISTICS");
+      const result = await getGameStats(params, cookie);
+      if (!result) {
+        console.log("500 for get game stats");
+        throw status(500);
+      } else {
+        console.log("Games stats found. Returning to client.");
+        return result;
+      }
+    } catch (error) {
+      console.log("Error in get game stats");
     }
   })
   .get("/data/:game_id", async ({ params, query }) => {
@@ -60,6 +76,21 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       }
     } catch (error) {
       console.log("Error in get game data router");
+    }
+  })
+  .get("/grab/:club_name", async ({ params, cookie }) => {
+    try {
+      console.log("In getting game by search");
+      const result = await getGamesBySearch(params, cookie);
+      if (!result) {
+        console.log("500 for get game by name");
+        throw status(500);
+      } else {
+        console.log("game by search has found. Returning to client.");
+        return result;
+      }
+    } catch (error) {
+      console.log("Error in get game by search router");
     }
   })
   .get("/in-progress", async ({ cookie }) => {
