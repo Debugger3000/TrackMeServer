@@ -19,7 +19,8 @@ import postgres from "postgres";
 const connectionString = process.env.DATABASE_URL!;
 console.log("Connection string: ", connectionString);
 const sql = postgres(connectionString, {
-  ssl: { rejectUnauthorized: false },
+  // ssl: { rejectUnauthorized: false },
+  ssl: 'require',
 });
 
 console.log("connected to supabase POSTGRESSQL");
