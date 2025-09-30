@@ -10,12 +10,16 @@ import {
   type TTime_Filter,
 } from "../types/game-stats";
 import {
+  getAverageClubDistance,
   getAveragePutts,
   getFairwaysHit,
   getScoringAverage,
+  mapShotContactsToArray,
+  mapShotsToArray,
   penaltyTaken,
   tallyHoleScores,
 } from "../middleware/gameStats";
+import type { Indiv_Game_Shots, IShotType } from "../types/shots";
 
 export const getGamesBySearch = async (
   params: { club_name: string },
@@ -129,7 +133,7 @@ export const getGameStats = async (
 `;
 
     const games_data = [...games_result];
-    console.log("result of game stats SEARCH", games_data);
+    // console.log("result of game stats SEARCH", games_data);
 
     // calculate games Played
     const games_played = games_data.length;
@@ -154,7 +158,8 @@ export const getGameStats = async (
   AND h.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
 `;
 
-    const holes_data = [...holes_result];
+
+    const holes_data = holes_result.slice();
     // console.log("result of game stats SEARCH", holes_data);
 
     const holes_played = holes_result.length;
@@ -195,6 +200,8 @@ export const getGameStats = async (
     // penalty_percent
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
+    console.log("score distro: ", hole_score_distro);
+
 
     let final_object: IGame_Stats = {
       game_view: games_data,
@@ -215,4 +222,100 @@ export const getGameStats = async (
     console.log("games stats controller error: ", error);
     return { success: false, message: "Games get by search failed !" };
   }
+};
+
+
+// get game shots - For many games (1month - 1 years worth)
+export const getManyGameShots = async ( params: { timeFilter: string},
+  cookie: Record<string, Cookie<string | undefined>>,
+  club_type: IShotType 
+) => {
+
+
+  try {
+    console.log("game search body: ", params.timeFilter);
+
+
+    // --------------------------------------
+    // GET USER ID
+
+    console.log("id for user to get games by search: ", cookie);
+
+    const access_secret = process.env.JWT_ACCESS_SECRET;
+
+    const accessTokenResult = verifyTokenHelper(
+      cookie.accessToken?.value,
+      access_secret
+    );
+    if (accessTokenResult === "BAD_TOKEN" || accessTokenResult === undefined) {
+      return {
+        success: false,
+        message: "Access token error in get games by search",
+        id: "",
+      };
+    }
+    const user_id = accessTokenResult.id;
+    console.log("user id before get game by search: ", user_id);
+
+    // -----------------------------------
+    
+    // query
+    // --------------------
+
+     const time_filter =
+      game_data_filter_time[params.timeFilter as TTime_Filter];
+
+    // get shots now.....
+    const game_shots_result = await sql<IGame_Shots_Stats[]>`
+  SELECT 
+    gs.shot_count,
+    gs.shot_contact,
+    gs.shot_path,
+    gs.land_type,
+    gs.yards,
+    gs.stroke,
+    gs.club_type
+  FROM game_shots gs
+  WHERE gs.user_id = ${user_id}
+  AND gs.club_type = ${club_type}
+  AND gs.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+  ORDER BY gs.created_at DESC
+`;
+
+    const game_shot_data = [...game_shots_result];
+    // console.log("result of game stats SEARCH", game_shots_result);
+
+    // total shots
+    const total_shots = game_shot_data.length;
+
+    // penalty_percent
+    const penalties_percent = penaltyTaken(game_shot_data, total_shots);
+
+    // average distance and longest shot
+    const average_club_distance = getAverageClubDistance(game_shot_data, total_shots);
+
+    // build out object for shot path...
+    const shot_path_object = mapShotsToArray(game_shot_data, club_type);
+
+
+    // build out object for shot contact
+    const shot_contact_object = mapShotContactsToArray(game_shot_data, total_shots);
+
+    let final_many_games_shots: Indiv_Game_Shots = {
+      total_shots: total_shots,
+      average_distance: average_club_distance.average_distance,
+      longest_shot: average_club_distance.longest_shot,
+      penalties_percent: penalties_percent,
+      shot_paths: shot_path_object,
+      shot_contact: shot_contact_object
+    }
+
+    console.log("return object for many game shots...", final_many_games_shots);
+  
+    return final_many_games_shots;
+  } catch (error) {
+    console.log("games by search controller error: ", error);
+    return { success: false, message: "Games get by search failed !" };
+  }
+
 };

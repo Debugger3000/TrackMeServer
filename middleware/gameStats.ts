@@ -2,6 +2,14 @@
 
 import type { IGameView } from "../types/game";
 import type { IGame_Shots_Stats, IHole_Stats } from "../types/game-stats";
+import {
+  SHOTCONTACT,
+  SHOTPATH,
+  type IShotContact,
+  type IShotContactIncoming,
+  type IShotIncoming,
+  type IShotType,
+} from "../types/shots";
 
 // GAMES tab
 // Games Played
@@ -31,14 +39,16 @@ export function getScoringAverage(games: IGameView[], games_played: number) {
       total_score = total_score + score;
 
       const par = games[i]?.par;
-      if(par){
+      if (par) {
         total_score_adjusted = total_score_adjusted + (par + score);
       }
-
     }
   }
 
-  return {stroke_score: Math.round((total_score / games_played) * 10) / 10, par_score: Math.round((total_score_adjusted / games_played) * 10) / 10};
+  return {
+    stroke_score: Math.round((total_score / games_played) * 10) / 10,
+    par_score: Math.round((total_score_adjusted / games_played) * 10) / 10,
+  };
 }
 
 export function getAveragePutts(holes: IHole_Stats[], holes_count: number) {
@@ -70,6 +80,10 @@ export function tallyHoleScores(holes: IHole_Stats[], holes_count: number) {
     double_or_more: 0,
   };
 
+  // console.log("holes in tally: ", holes);
+
+  // console.log("hole count: ", holes_count);
+
   for (let i = 0; i < holes_count; i++) {
     // const putt_count = holes[i]?.putt_count;
     // if (putt_count) {
@@ -78,33 +92,33 @@ export function tallyHoleScores(holes: IHole_Stats[], holes_count: number) {
     const hole_score = holes[i]?.score;
     const hole_par = holes[i]?.par;
 
-    const diff = hole_score && hole_par ? hole_score - hole_par : null;
+    if (hole_score && hole_par) {
+      const diff = hole_score - hole_par;
+      console.log("'diff before switch: ", diff);
 
-    if (!diff) {
-      return;
-    }
+      // if (!diff) {
+      //   return;
+      // }
 
-    switch (diff) {
-      case -2:
+      if (diff <= -2) {
+        // Eagle (includes -4, -3, -2)
         hole_scores.eagle++;
-        break;
-      case -1: // Birdie
+      } else if (diff === -1) {
+        // Birdie
         hole_scores.birdie++;
-        break;
-      case 0: // Par
+      } else if (diff === 0) {
+        // Par
         hole_scores.par++;
-        break;
-      case 1: // Bogey
+      } else if (diff === 1) {
+        // Bogey
         hole_scores.bogey++;
-        break;
-      default: // Double bogey or worse
-        if (diff >= 2) {
-          hole_scores.double_or_more++;
-        }
-        break;
+      } else {
+        // Double bogey or worse
+        hole_scores.double_or_more++;
+      }
     }
   }
-
+  console.log("hole scorses: ", hole_scores);
   return hole_scores;
 }
 
@@ -153,4 +167,81 @@ export function penaltyTaken(shots: IGame_Shots_Stats[], total_shots: number) {
   }
 
   return Math.round((total_penalty_strokes / total_shots) * 10) / 10;
+}
+
+// ----------------------
+// get average club distance
+export function getAverageClubDistance(
+  shots: IGame_Shots_Stats[],
+  total_shots: number
+) {
+  let longest_shot = 0;
+  let total_distance = 0;
+  for (let i = 0; i < total_shots; i++) {
+    const yards = shots[i]?.yards;
+    if (yards) {
+      total_distance++;
+      if (yards > longest_shot) {
+        longest_shot = yards;
+      }
+    }
+  }
+
+  return {
+    average_distance: Math.round((total_distance / total_shots) * 10) / 10,
+    longest_shot: longest_shot,
+  };
+}
+
+// map game shots to shot paths array
+export function mapShotsToArray(
+  shots: IGame_Shots_Stats[],
+  club_type: IShotType
+): IShotIncoming {
+  // Get the keys in the order you want
+  const paths = Object.values(SHOTPATH) as (keyof typeof SHOTPATH)[];
+
+  // Initialize counts array
+  const counts: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+  // Loop through each shot and increment the corresponding index
+  for (const shot of shots) {
+    const idx = paths.indexOf(shot.shot_path as keyof typeof SHOTPATH);
+    if (idx !== -1) {
+      counts[idx]!++;
+    }
+  }
+
+  return { clubType: club_type, dataSet: counts };
+}
+
+export function mapShotContactsToArray(
+  shots: IGame_Shots_Stats[],
+  total: number
+): IShotContactIncoming {
+  // Get the contact keys in the correct order
+  const contacts = Object.values(SHOTCONTACT) as IShotContact[];
+
+  // Initialize counts array
+  const counts: [number, number, number, number, number] = [0, 0, 0, 0, 0];
+
+  // Loop through each shot and increment the corresponding index
+  for (const shot of shots) {
+    const idx = contacts.indexOf(shot.shot_contact);
+    if (idx !== -1) {
+      counts[idx]!++;
+    }
+  }
+
+  return { total: total, dataSet: counts };
 }

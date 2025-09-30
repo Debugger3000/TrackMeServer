@@ -27,15 +27,15 @@ export const CLUBTYPE = {
 } as const;
 
 export const SHOTPATH = {
-  PullHook: "pullHook",
-  Hook: "hook",
-  Pull: "pull",
-  Draw: "draw",
-  Straight: "straight",
-  Fade: "fade",
-  Push: "push",
-  Slice: "slice",
-  PushSlice: "pushSlice",
+  pullHook: "pullHook",
+  hook: "hook",
+  pull: "pull",
+  draw: "draw",
+  straight: "straight",
+  fade: "fade",
+  push: "push",
+  slice: "slice",
+  pushSlice: "pushSlice",
 } as const;
 
 export const SHOTPATH_ITER: string[] = Object.values(SHOTPATH);
@@ -43,11 +43,11 @@ export const SHOTPATH_POP: number[] = Array(9).fill(0);
 export const CONTACT_POP: number[] = Array(5).fill(0);
 
 export const SHOTCONTACT = {
-  Center: "center",
-  Fat: "fat",
-  Thin: "thin",
-  Toe: "toe",
-  Heel: "heel",
+  center: "center",
+  fat: "fat",
+  thin: "thin",
+  toe: "toe",
+  heel: "heel",
 } as const;
 
 type ContactDataSet = [number, number, number, number, number];
@@ -108,3 +108,39 @@ export type IShotPaths =
   | "pull"
   | "hook"
   | "pullHook";
+
+
+  // many games shots types /  individual game shot stats
+  export interface Indiv_Game_Shots {
+    total_shots: number;
+    average_distance: number;
+    longest_shot: number;
+    penalties_percent: number;
+    shot_paths: IShotIncoming;
+    shot_contact:  IShotContactIncoming;
+  }
+
+  export interface IShotIncoming {
+  clubType: IShotType;
+  dataSet: ShotDataSet;
+}
+
+// data for shot contact. Will be a donut / circle graph
+export interface IShotContactIncoming {
+  total: number;
+  dataSet: ContactDataSet;
+}
+
+
+
+type ShotDataSet = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+];
