@@ -7,7 +7,7 @@ import {
 } from "../controllers/shots";
 import type { IShot, IShotType } from "../types/shots";
 import type { Game_Shot_Data_Submit, Game_Shot_Delete } from "../types/game";
-import { getManyGameShots } from "../controllers/game-stats";
+import { getManyGameShots, getSoloGameShotStats } from "../controllers/game-stats";
 
 export const shotDataRoute = new Elysia({ prefix: "/api/data" })
   .post("/shot", async ({ body }) => {
@@ -80,6 +80,27 @@ export const shotDataRoute = new Elysia({ prefix: "/api/data" })
 
         console.log("In GAMES STATISTICS");
         const result = await getManyGameShots(params, cookie, club_type);
+        if (!result) {
+          console.log("500 for get game many shots stats");
+          throw status(500);
+        } else {
+          console.log("Games many shots stats found. Returning to client.");
+          return result;
+        }
+      } catch (error) {
+        console.log("Error in get many game shots stats");
+      }
+    })
+    .get("/stats/game-solo/:game_id", async ({ params, cookie, query }) => {
+      try {
+
+        const club_type = query.club_type as IShotType;
+        if(!club_type){
+          throw status(500);
+        }   
+
+        console.log("In GAMES STATISTICS");
+        const result = await getSoloGameShotStats(params, cookie, club_type);
         if (!result) {
           console.log("500 for get game many shots stats");
           throw status(500);
