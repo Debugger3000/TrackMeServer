@@ -30,7 +30,7 @@ export const loginUser = async (
       return { success: false, message: "Server secret error" };
     }
 
-    console.log("Pool stats:", sql.options);
+    // console.log("Pool stats:", sql.options);
 
     const [user] = await sql`
     select * from users 
