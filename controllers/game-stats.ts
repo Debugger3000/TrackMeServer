@@ -28,11 +28,11 @@ export const getGamesBySearch = async (
   console.log("INSIDE GET game by search CONTROLLER");
 
   try {
-    console.log("game search body: ", params.club_name);
+    // console.log("game search body: ", params.club_name);
 
     // GET USER ID
 
-    console.log("id for user to get games by search: ", cookie);
+    // console.log("id for user to get games by search: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -71,7 +71,7 @@ export const getGamesBySearch = async (
 
     console.log();
     const rowData = [...result];
-    console.log("result of game SEARCH", rowData);
+    // console.log("result of game SEARCH", rowData);
 
     return rowData;
   } catch (error) {
@@ -87,7 +87,7 @@ export const getGameStats = async (
   console.log("INSIDE GET game stats CONTROLLER");
 
   try {
-    console.log("game search body: ", params.timeFilter);
+    // console.log("game search body: ", params.timeFilter);
 
     // GET USER ID
     // console.log("id for user to get games stats: ", cookie);
@@ -106,7 +106,7 @@ export const getGameStats = async (
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get games stats: ", user_id);
+    // console.log("user id before get games stats: ", user_id);
 
     // -----------------------------------
 
@@ -200,7 +200,7 @@ export const getGameStats = async (
     // penalty_percent
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
-    console.log("score distro: ", hole_score_distro);
+    // console.log("score distro: ", hole_score_distro);
 
 
     let final_object: IGame_Stats = {
@@ -233,13 +233,13 @@ export const getManyGameShots = async ( params: { timeFilter: string},
 
 
   try {
-    console.log("game search body: ", params.timeFilter);
+    // console.log("game search body: ", params.timeFilter);
 
 
     // --------------------------------------
     // GET USER ID
 
-    console.log("id for user to get games by search: ", cookie);
+    // console.log("id for user to get games by search: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -255,7 +255,7 @@ export const getManyGameShots = async ( params: { timeFilter: string},
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get game by search: ", user_id);
+    // console.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
     
@@ -310,7 +310,7 @@ export const getManyGameShots = async ( params: { timeFilter: string},
       shot_contact: shot_contact_object
     }
 
-    console.log("return object for many game shots...", final_many_games_shots);
+    //.log("return object for many game shots...", final_many_games_shots);
   
     return final_many_games_shots;
   } catch (error) {
@@ -331,13 +331,13 @@ export const getSoloGameStats = async ( params: { game_id: string},
 
 
   try {
-    console.log("game search body: ", params.game_id);
+    //.log("game search body: ", params.game_id);
 
 
     // --------------------------------------
     // GET USER ID
 
-    console.log("id for user to get games by search: ", cookie);
+    //.log("id for user to get games by search: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -353,7 +353,7 @@ export const getSoloGameStats = async ( params: { game_id: string},
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get game by search: ", user_id);
+    //.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
     
@@ -445,7 +445,7 @@ export const getSoloGameStats = async ( params: { game_id: string},
     // penalty_percent
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
-    console.log("score distro: ", hole_score_distro);
+    //.log("score distro: ", hole_score_distro);
 
 
     let final_object: IGame_Stats = {
@@ -479,13 +479,13 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
 
 
   try {
-    console.log("game search body: ", params.game_id);
+    //.log("game search body: ", params.game_id);
 
 
     // --------------------------------------
     // GET USER ID
 
-    console.log("id for user to get games by search: ", cookie);
+    //.log("id for user to get games by search: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -501,7 +501,7 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get game by search: ", user_id);
+    //.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
     
@@ -553,7 +553,7 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
       shot_contact: shot_contact_object
     }
 
-    console.log("return object for many game shots...", final_many_games_shots);
+    //.log("return object for many game shots...", final_many_games_shots);
   
     return final_many_games_shots;
   } catch (error) {

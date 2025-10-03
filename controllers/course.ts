@@ -66,7 +66,7 @@ export const getCourseByClub = async (params: { club_name: string }) => {
   console.log("INSIDE GET course poster CONTROLLER");
 
   try {
-    console.log("course search body: ", params.club_name);
+    // console.log("course search body: ", params.club_name);
 
     const result = await sql<
       ICourseView[]
@@ -75,7 +75,7 @@ export const getCourseByClub = async (params: { club_name: string }) => {
     }`;
 
     const rowData = [...result];
-    console.log("result of COURSE SEARCH", rowData);
+    // console.log("result of COURSE SEARCH", rowData);
 
     return rowData;
   } catch (error) {

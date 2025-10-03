@@ -61,7 +61,7 @@ export const createGameData = async (
     }
     const user_id = accessTokenResult.id;
 
-    console.log("create game, course_id param: ", body);
+    // console.log("create game, course_id param: ", body);
 
     const holes: THoles = body.holes;
 
@@ -73,7 +73,7 @@ export const createGameData = async (
       RETURNING *
         `;
 
-    console.log("result of query hehe", result_course_scorecard);
+    // console.log("result of query hehe", result_course_scorecard);
 
     if (result_course_scorecard[0]) {
       const game_id = result_course_scorecard[0].id;
@@ -92,7 +92,7 @@ export const createGameData = async (
           const score_card = result[0];
 
           const resulter = await createEightHoles(game_id, user_id, score_card);
-          console.log("result of create eighteen holes: ", resulter);
+          // console.log("result of create eighteen holes: ", resulter);
         }
       }
 
@@ -110,7 +110,7 @@ export const createGameData = async (
           const score_card = result[0];
 
           const resulter = await createNineHoles(game_id, user_id, score_card);
-          console.log("result of create nine holes: ", resulter);
+          // console.log("result of create nine holes: ", resulter);
         }
       }
 
@@ -141,7 +141,7 @@ export const getCompleteGames = async (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
   try {
-    console.log("id for user to get IN-PROGRESS games: ", cookie);
+    // console.log("id for user to get IN-PROGRESS games: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -157,7 +157,7 @@ export const getCompleteGames = async (
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get current games: ", user_id);
+    // console.log("user id before get current games: ", user_id);
 
     const result = await sql<IGameView[]>`
   SELECT 
@@ -180,7 +180,7 @@ export const getCompleteGames = async (
     // console.log("result of get current games query before: ", result);
     const games = [...result];
 
-    console.log("result of get current games query", games);
+    // console.log("result of get current games query", games);
 
     return games;
   } catch (error) {
@@ -194,7 +194,7 @@ export const getCurrentGames = async (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
   try {
-    console.log("id for user to get IN-PROGRESS games: ", cookie);
+    // console.log("id for user to get IN-PROGRESS games: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
@@ -210,7 +210,7 @@ export const getCurrentGames = async (
       };
     }
     const user_id = accessTokenResult.id;
-    console.log("user id before get current games: ", user_id);
+    // console.log("user id before get current games: ", user_id);
 
     const result = await sql<IGameView[]>`
   SELECT 
@@ -233,7 +233,7 @@ export const getCurrentGames = async (
     // console.log("result of get current games query before: ", result);
     const games = [...result];
 
-    console.log("result of get current games query", games);
+    // console.log("result of get current games query", games);
 
     return games;
   } catch (error) {
@@ -253,7 +253,7 @@ export const getNineGameById = async (params: { game_id: string }) => {
 
   try {
     const game_id = params.game_id;
-    console.log("game id: ", params.game_id);
+    // console.log("game id: ", params.game_id);
     // get game object by sql query
     const result = await getGameObjectNine(game_id);
 
@@ -262,16 +262,16 @@ export const getNineGameById = async (params: { game_id: string }) => {
       return null;
     }
     const main_q = result[0];
-    console.log("result of query hehe", [...result]);
-    console.log("result of main game query: ", main_q);
+    // console.log("result of query hehe", [...result]);
+    // console.log("result of main game query: ", main_q);
 
     // sort score card data into one object
     const score_card_sorted = getScoreCardNine(main_q);
     // sort course data into one object
     const course_sorted = getCourseData(main_q);
 
-    console.log("course_score_card after sorting: ", score_card_sorted);
-    console.log("course_sorted after sorting: ", course_sorted);
+    // console.log("course_score_card after sorting: ", score_card_sorted);
+    // console.log("course_sorted after sorting: ", course_sorted);
 
     // Grab holes first, cause we need to aggregates shots to holes
     const check_holes = await sql`
@@ -298,7 +298,7 @@ export const getNineGameById = async (params: { game_id: string }) => {
     // send the data to a function to get cleaned and then send back, in game object...
     const hole_data_return = cleanHoleDataNine(holes_array, shots_array);
 
-    console.log("clearn shot+hole data: ", hole_data_return);
+    // console.log("clearn shot+hole data: ", hole_data_return);
 
     // make sure neither score card or hole data are undefined...
     if (!score_card_sorted || !hole_data_return) {
@@ -335,7 +335,7 @@ export const getEightGameById = async (params: { game_id: string }) => {
 
   try {
     const game_id = params.game_id;
-    console.log("game id: ", params.game_id);
+    // console.log("game id: ", params.game_id);
 
     // get game object by sql query
     const result = await getGameObjectEight(game_id);
@@ -345,16 +345,14 @@ export const getEightGameById = async (params: { game_id: string }) => {
       return null;
     }
     const main_q = result[0];
-    console.log("result of query hehe", [...result]);
-    console.log("result of main game query: ", main_q);
+    // console.log("result of query hehe", [...result]);
+    // console.log("result of main game query: ", main_q);
 
     // sort score card data into one object
     const score_card_sorted = getScoreCardEight(main_q);
     // sort course data into one object
     const course_sorted = getCourseData(main_q);
 
-    console.log("course_score_card after sorting: ", score_card_sorted);
-    // console.log("course_sorted after sorting: ", course_sorted);
 
     // Grab holes first, cause we need to aggregates shots to holes
     const check_holes = await sql`
@@ -378,7 +376,6 @@ export const getEightGameById = async (params: { game_id: string }) => {
 
     const shots_array = [...shot_data] as Game_Shot_Data[];
 
-    console.log("shots array: ", shots_array);
 
     // send the data to a function to get cleaned and then send back, in game object...
     const hole_data_return = cleanHoleDataEight(holes_array, shots_array);

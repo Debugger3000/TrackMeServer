@@ -45,10 +45,10 @@ export const loginUser = async (
 
     const id = user.id;
 
-    console.log("user id: ", id);
-    console.log("username: ", username);
+    //("user id: ", id);
+    //("username: ", username);
 
-    console.log("user found: ", user);
+    //("user found: ", user);
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       return { success: false, message: "Password did not match username" };
@@ -142,7 +142,7 @@ export const registerUser = async (
 
     const id = user.id;
 
-    console.log("Returned data from post query: ", user);
+    //("Returned data from post query: ", user);
 
     // create refresh token and add to cookie for response
     // const refreshToken = jwt.sign({ username }, refresh_secret, {
@@ -212,7 +212,7 @@ export const checkRefreshToken = (
       refresh_secret
     );
 
-    console.log("result of token verify: ", result);
+    //("result of token verify: ", result);
 
     // bad refresh token, we send back no token at all, just a normal response with falsely success
     if (result === "BAD_TOKEN") {
