@@ -9,7 +9,9 @@ const sql = postgres(connectionString, {
   ssl: { rejectUnauthorized: false },
   max: 10,
   max_lifetime: 60,
-  idle_timeout: 30
+  idle_timeout: 30,
+  prepare: false,
+  connect_timeout: 10,
   // ssl: 'require',
 });
 
