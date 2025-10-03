@@ -13,7 +13,7 @@ export const authRoute = new Elysia({ prefix: "/api/auth" })
     if (result) {
       return { success: true, message: "Logout Successful" };
     } else {
-      return { success: false, message: "Logout Failed" };
+      throw status(500);
     }
   })
   .post("/onLoadTokenCheck", ({ cookie }) => {
