@@ -30,10 +30,14 @@ export const loginUser = async (
       return { success: false, message: "Server secret error" };
     }
 
+    console.log("Pool stats:", sql.options);
+
     const [user] = await sql`
     select * from users 
     where username = ${username}
   `;
+
+  console.log("After login GET user data...");
 
     if (!user) {
       return { success: false, message: "Database finding user Error" };

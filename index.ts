@@ -25,6 +25,7 @@ const app = new Elysia()
       credentials: true,
     })
   )
+  .head("/", () => new Response(null, { status: 200 }))
   .get("/", () => ({ status: "ok" }))
   .onError(({ code, error }) => {
     console.log("Error was thrown from somewhere: ", code);
@@ -80,6 +81,8 @@ const app = new Elysia()
   .use(shotDataRoute)
   .use(courseDataRoute)
   .use(gameDataRoute);
+
+  app.head("/", () => new Response(null, { status: 200 }));
 
 export default app;
 
