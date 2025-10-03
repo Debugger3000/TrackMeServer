@@ -4,16 +4,36 @@ import postgres from "postgres";
 
 const connectionString = process.env.DATABASE_URL!;
 
-
-
-console.log("Connection string: ", connectionString);
+// console.log("Connection string: ", connectionString);
 const sql = postgres(connectionString, {
   ssl: { rejectUnauthorized: false },
   max: 10,
   // ssl: 'require',
 });
 
-console.log("connected to supabase POSTGRESSQL");
+async function healthCheck(retries = 10, delay = 15000): Promise<void> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await sql`SELECT 1;`; // basic test query
+      console.log("✅ Connected to Supabase PostgreSQL");
+      return;
+    } catch (err) {
+      console.error(`❌ DB connection failed (attempt ${attempt}/${retries})`, err);
+      if (attempt < retries) {
+        console.log(`Retrying in ${delay}s...`);
+        await new Promise((res) => setTimeout(res, delay));
+      } else {
+        console.error("❌ Exhausted retries, exiting.");
+        process.exit(1); // fail fast, or throw if you prefer
+      }
+    }
+  }
+}
+
+await healthCheck();
+
+
+// console.log("connected to supabase POSTGRESSQL");
 
 
 export default sql;
