@@ -17,7 +17,7 @@ export const getUserInfo = (
     }
 
     const accessToken = cookie!.accessToken?.value;
-    console.log("refresh token in verifyToken(): ", accessToken);
+    //.log("refresh token in verifyToken(): ", accessToken);
 
     const accessTokenResult = verifyTokenHelper(accessToken, access_secret);
 
@@ -25,13 +25,13 @@ export const getUserInfo = (
       return 500;
     }
 
-    console.log("accessTokenResult: ", accessTokenResult);
+    //.log("accessTokenResult: ", accessTokenResult);
     // return data from token
     const result: IToken = {
       id: accessTokenResult.id,
       username: accessTokenResult.username,
     };
-    console.log("returning user info: ", result);
+    //.log("returning user info: ", result);
     return result;
   } catch (error) {
     console.log("Error in getUserInfo controller: ", error);

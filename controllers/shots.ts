@@ -22,7 +22,7 @@ export const postShotData = async (shotDataBody: IShot[]) => {
       shotpath: s.shotPath,
     }));
 
-    console.log("ShotData normalized body: ", normalizedShots);
+    //.log("ShotData normalized body: ", normalizedShots);
 
     const result = await sql`
         INSERT INTO shots
@@ -59,15 +59,15 @@ export const getShotData = async (
       console.log("bad refresh token... somehow getShotData");
       return null;
     } else {
-      console.log("token user id:", result.id);
-      console.log("club type queried for: ", params.clubType);
+      //.log("token user id:", result.id);
+      //.log("club type queried for: ", params.clubType);
       const queryResult = await sql<IShotFromSql[]>`
         select clubtype, shotcontact, shotpath, created_at from shots where userid = ${result.id} and clubtype = ${params.clubType}
         `;
-      console.log("query result shotdata: ", queryResult.columns);
+      //.log("query result shotdata: ", queryResult.columns);
 
       const rowData: IShotFromSql[] = [...queryResult];
-      console.log("row data nromalzied: ", rowData);
+      //.log("row data nromalzied: ", rowData);
       if (rowData != null || rowData != undefined) {
         // filter number of shotpaths via the clubtype out into number[]
         // [number,number,number,number,number,number,number,number,number]
@@ -88,15 +88,15 @@ export const getShotData = async (
         let zeroArray = [...SHOTPATH_POP];
         let zeroArrayContact = [...CONTACT_POP];
 
-        console.log("iter array: ", SHOTPATH_ITER);
+        //.log("iter array: ", SHOTPATH_ITER);
 
-        console.log("zero array before: ", zeroArray);
+        //.log("zero array before: ", zeroArray);
 
         for (let i = 0; i < dataLength; i++) {
           const index = SHOTPATH_ITER.indexOf(rowData[i]!.shotpath);
 
-          console.log("shotpath: ", rowData[i]!.shotpath);
-          console.log("index grabbed: ", index);
+          //.log("shotpath: ", rowData[i]!.shotpath);
+          //.log("index grabbed: ", index);
           zeroArray[index] = zeroArray[index]! + 1;
 
           // get index for contact array
@@ -111,8 +111,8 @@ export const getShotData = async (
 
         // set contact total
         dataObject.icontact.total = dataLength;
-        console.log("zero array after: ", zeroArray);
-        console.log("dataObject: ", dataObject);
+        //.log("zero array after: ", zeroArray);
+        //.log("dataObject: ", dataObject);
 
         return dataObject;
       } else {
@@ -135,7 +135,7 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
   console.log("INSIDE GAME shots CONTROLLER");
 
   try {
-    console.log("ShotData GAMER : ", body);
+    //.log("ShotData GAMER : ", body);
 
     const objecter = {
       hole_id: Number(body.hole_id),
@@ -161,7 +161,7 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
   RETURNING id
 `;
 
-    console.log("result of query hehe", result);
+    //.log("result of query hehe", result);
 
     return { success: true, message: "GAME Shot uploaded successfully !" };
   } catch (error) {
@@ -173,7 +173,7 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
 // delete a game shot data hehe
 export const deleteGameShotData = async (body: Game_Shot_Delete) => {
   try {
-    console.log("delete game shot body hehe: ", body);
+    //.log("delete game shot body hehe: ", body);
 
     const result = await sql`
       DELETE FROM game_shots
