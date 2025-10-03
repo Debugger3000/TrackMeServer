@@ -8,14 +8,19 @@ const connectionString = process.env.DATABASE_URL!;
 const sql = postgres(connectionString, {
   ssl: { rejectUnauthorized: false },
   max: 10,
+  max_lifetime: 60,
+  idle_timeout: 30
   // ssl: 'require',
 });
+
+
 
 async function healthCheck(retries = 10, delay = 15000): Promise<void> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      await sql`SELECT 1;`; // basic test query
+      const [healthResult] = await sql`SELECT 1;`; // basic test query
       console.log("✅ Connected to Supabase PostgreSQL");
+      console.log("'result of health check: ", healthResult);
       return;
     } catch (err) {
       console.error(`❌ DB connection failed (attempt ${attempt}/${retries})`, err);
