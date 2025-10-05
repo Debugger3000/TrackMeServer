@@ -27,10 +27,19 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       console.log("Error in post shot data router");
     }
   })
-  .get("/stats/:timeFilter", async ({ params, cookie }) => {
+  .get("/stats/:timeFilter", async ({ params, cookie, query }) => {
     try {
       console.log("In GAMES STATISTICS");
-      const result = await getGameStats(params, cookie);
+
+      const holes = Number(query.holes) as THoles;
+      console.log("holes GET GAME STats: ", holes);
+
+      if (!holes) {
+        throw status(500);
+      }
+
+
+      const result = await getGameStats(params, cookie, holes);
       if (!result) {
         console.log("500 for get game stats");
         throw status(500);
@@ -125,9 +134,19 @@ export const gameDataRoute = new Elysia({ prefix: "/api/game" })
       console.log("Error in get inprogress games data router");
     }
   })
-  .get("/completed", async ({ cookie }) => {
+  .get("/completed", async ({ cookie, query }) => {
     try {
       console.log("Getting completed games in router");
+
+      // grab query value here
+      const limit = Number(query.limit);
+      console.log("get completed, query limit: ", limit);
+
+      if(!limit){
+        console.log("Query for limit, for GET completed games was undefined...");
+        throw status(500);
+      }
+
       const result = await getCompleteGames(cookie);
       if (!result) {
         console.log("500 for get completed games");

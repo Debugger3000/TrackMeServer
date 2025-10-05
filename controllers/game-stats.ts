@@ -20,6 +20,7 @@ import {
   tallyHoleScores,
 } from "../middleware/gameStats";
 import type { Indiv_Game_Shots, IShotType } from "../types/shots";
+import type { THoles } from "../types/course";
 
 export const getGamesBySearch = async (
   params: { club_name: string },
@@ -82,7 +83,8 @@ export const getGamesBySearch = async (
 
 export const getGameStats = async (
   params: { timeFilter: string },
-  cookie: Record<string, Cookie<string | undefined>>
+  cookie: Record<string, Cookie<string | undefined>>,
+  holes: THoles
 ) => {
   console.log("INSIDE GET game stats CONTROLLER");
 
@@ -129,6 +131,7 @@ export const getGameStats = async (
   WHERE g.user_id = ${user_id}
     AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
     AND status = 'COMPLETE'
+    AND g.holes = ${holes}
   ORDER BY g.created_at DESC
 `;
 
@@ -140,24 +143,39 @@ export const getGameStats = async (
 
     // get scoring average
     const scoring_average: {
-    stroke_score: number;
-    par_score: number;
-} = getScoringAverage(games_data, games_played);
+      stroke_score: number;
+      par_score: number;
+    } = getScoringAverage(games_data, games_played);
 
     // --------------------
 
     // GET hole data
     const holes_result = await sql<IHole_Stats[]>`
   SELECT 
-    h.hole_number,
-    h.putt_count,
-    h.par,
-    h.score
-  FROM holes h
-  WHERE h.user_id = ${user_id}
-  AND h.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
-`;
+  h.hole_number,
+  h.putt_count,
+  h.par,
+  h.score
+FROM holes h
+WHERE h.game_id IN (
+  SELECT g.id
+  FROM games g
+  WHERE g.user_id = ${user_id}
+    AND g.holes = ${holes}
+    AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    AND g.status = 'COMPLETE')`;
 
+    // old holes get
+    // const holes_result = await sql<IHole_Stats[]>`
+    //   SELECT
+    //     h.hole_number,
+    //     h.putt_count,
+    //     h.par,
+    //     h.score
+    //   FROM holes h
+    //   WHERE h.user_id = ${user_id}
+    //   AND h.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    // `;
 
     const holes_data = holes_result.slice();
     // console.log("result of game stats SEARCH", holes_data);
@@ -169,21 +187,45 @@ export const getGameStats = async (
     // tally hole scores
     const hole_score_distro = tallyHoleScores(holes_result, holes_played);
 
-    // get shots now.....
+
+    // newer one
     const game_shots_result = await sql<IGame_Shots_Stats[]>`
   SELECT 
-    gs.shot_count,
-    gs.shot_contact,
-    gs.shot_path,
-    gs.land_type,
-    gs.yards,
-    gs.stroke,
-    gs.club_type
-  FROM game_shots gs
-  WHERE gs.user_id = ${user_id}
-  AND gs.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
-  ORDER BY gs.created_at DESC
-`;
+  gs.shot_count,
+  gs.shot_contact,
+  gs.shot_path,
+  gs.land_type,
+  gs.yards,
+  gs.stroke,
+  gs.club_type
+FROM game_shots gs
+WHERE gs.game_id IN (
+  SELECT g.id
+  FROM games g
+  WHERE g.user_id = ${user_id}
+    AND g.holes = ${holes}
+    AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    AND g.status = 'COMPLETE'
+)
+ORDER BY gs.created_at DESC`;
+    
+
+
+    // get shots now.....
+//     const game_shots_result = await sql<IGame_Shots_Stats[]>`
+//   SELECT 
+//     gs.shot_count,
+//     gs.shot_contact,
+//     gs.shot_path,
+//     gs.land_type,
+//     gs.yards,
+//     gs.stroke,
+//     gs.club_type
+//   FROM game_shots gs
+//   WHERE gs.user_id = ${user_id}
+//   AND gs.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+//   ORDER BY gs.created_at DESC
+// `;
 
     const game_shot_data = [...game_shots_result];
     // console.log("result of game stats SEARCH", game_shots_result);
@@ -201,7 +243,6 @@ export const getGameStats = async (
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
     // console.log("score distro: ", hole_score_distro);
-
 
     let final_object: IGame_Stats = {
       game_view: games_data,
@@ -224,17 +265,14 @@ export const getGameStats = async (
   }
 };
 
-
 // get game shots - For many games (1month - 1 years worth)
-export const getManyGameShots = async ( params: { timeFilter: string},
+export const getManyGameShots = async (
+  params: { timeFilter: string },
   cookie: Record<string, Cookie<string | undefined>>,
-  club_type: IShotType 
+  club_type: IShotType
 ) => {
-
-
   try {
     // console.log("game search body: ", params.timeFilter);
-
 
     // --------------------------------------
     // GET USER ID
@@ -258,11 +296,11 @@ export const getManyGameShots = async ( params: { timeFilter: string},
     // console.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
-    
+
     // query
     // --------------------
 
-     const time_filter =
+    const time_filter =
       game_data_filter_time[params.timeFilter as TTime_Filter];
 
     // get shots now.....
@@ -292,14 +330,19 @@ export const getManyGameShots = async ( params: { timeFilter: string},
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
     // average distance and longest shot
-    const average_club_distance = getAverageClubDistance(game_shot_data, total_shots);
+    const average_club_distance = getAverageClubDistance(
+      game_shot_data,
+      total_shots
+    );
 
     // build out object for shot path...
     const shot_path_object = mapShotsToArray(game_shot_data, club_type);
 
-
     // build out object for shot contact
-    const shot_contact_object = mapShotContactsToArray(game_shot_data, total_shots);
+    const shot_contact_object = mapShotContactsToArray(
+      game_shot_data,
+      total_shots
+    );
 
     let final_many_games_shots: Indiv_Game_Shots = {
       total_shots: total_shots,
@@ -307,32 +350,26 @@ export const getManyGameShots = async ( params: { timeFilter: string},
       longest_shot: average_club_distance.longest_shot,
       penalties_percent: penalties_percent,
       shot_paths: shot_path_object,
-      shot_contact: shot_contact_object
-    }
+      shot_contact: shot_contact_object,
+    };
 
     //.log("return object for many game shots...", final_many_games_shots);
-  
+
     return final_many_games_shots;
   } catch (error) {
     console.log("games by search controller error: ", error);
     return { success: false, message: "Games get by search failed !" };
   }
-
 };
-
-
-
 
 // get solo game stats
 // get game shots - For many games (1month - 1 years worth)
-export const getSoloGameStats = async ( params: { game_id: string},
+export const getSoloGameStats = async (
+  params: { game_id: string },
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
-
-
   try {
     //.log("game search body: ", params.game_id);
-
 
     // --------------------------------------
     // GET USER ID
@@ -356,7 +393,7 @@ export const getSoloGameStats = async ( params: { game_id: string},
     //.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
-    
+
     // query
     // --------------------
 
@@ -385,9 +422,9 @@ export const getSoloGameStats = async ( params: { game_id: string},
 
     // get scoring average
     const scoring_average: {
-    stroke_score: number;
-    par_score: number;
-} = getScoringAverage(games_data, games_played);
+      stroke_score: number;
+      par_score: number;
+    } = getScoringAverage(games_data, games_played);
 
     // --------------------
 
@@ -402,7 +439,6 @@ export const getSoloGameStats = async ( params: { game_id: string},
   WHERE h.user_id = ${user_id}
   AND h.game_id = ${params.game_id}
 `;
-
 
     const holes_data = holes_result.slice();
     // console.log("result of game stats SEARCH", holes_data);
@@ -447,7 +483,6 @@ export const getSoloGameStats = async ( params: { game_id: string},
 
     //.log("score distro: ", hole_score_distro);
 
-
     let final_object: IGame_Stats = {
       game_view: games_data,
       games_played: games_played,
@@ -467,20 +502,15 @@ export const getSoloGameStats = async ( params: { game_id: string},
     console.log("get SOLO game stats error: ", error);
     return { success: false, message: "Games get by search failed !" };
   }
-
 };
 
-
-
-export const getSoloGameShotStats = async ( params: { game_id: string},
+export const getSoloGameShotStats = async (
+  params: { game_id: string },
   cookie: Record<string, Cookie<string | undefined>>,
-  club_type: IShotType 
+  club_type: IShotType
 ) => {
-
-
   try {
     //.log("game search body: ", params.game_id);
-
 
     // --------------------------------------
     // GET USER ID
@@ -504,7 +534,7 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
     //.log("user id before get game by search: ", user_id);
 
     // -----------------------------------
-    
+
     // query
     // --------------------
 
@@ -535,14 +565,19 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
     const penalties_percent = penaltyTaken(game_shot_data, total_shots);
 
     // average distance and longest shot
-    const average_club_distance = getAverageClubDistance(game_shot_data, total_shots);
+    const average_club_distance = getAverageClubDistance(
+      game_shot_data,
+      total_shots
+    );
 
     // build out object for shot path...
     const shot_path_object = mapShotsToArray(game_shot_data, club_type);
 
-
     // build out object for shot contact
-    const shot_contact_object = mapShotContactsToArray(game_shot_data, total_shots);
+    const shot_contact_object = mapShotContactsToArray(
+      game_shot_data,
+      total_shots
+    );
 
     let final_many_games_shots: Indiv_Game_Shots = {
       total_shots: total_shots,
@@ -550,15 +585,14 @@ export const getSoloGameShotStats = async ( params: { game_id: string},
       longest_shot: average_club_distance.longest_shot,
       penalties_percent: penalties_percent,
       shot_paths: shot_path_object,
-      shot_contact: shot_contact_object
-    }
+      shot_contact: shot_contact_object,
+    };
 
     //.log("return object for many game shots...", final_many_games_shots);
-  
+
     return final_many_games_shots;
   } catch (error) {
     console.log("get SOLO game shots stats error: ", error);
     return { success: false, message: "Games get by search failed !" };
   }
-
 };
