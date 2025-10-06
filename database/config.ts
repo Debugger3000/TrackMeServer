@@ -5,7 +5,7 @@ import postgres from "postgres";
 const connectionString = process.env.DATABASE_URL!;
 
 // console.log("Connection string: ", connectionString);
-const sql = postgres(connectionString, {
+let sql = postgres(connectionString, {
   ssl: { rejectUnauthorized: false },
   max: 10,
   max_lifetime: 60,
@@ -38,6 +38,29 @@ async function healthCheck(retries = 10, delay = 15000): Promise<void> {
 }
 
 await healthCheck();
+
+
+// start a cron job connection checker every now and then, to re-establish a database connection if it gets dropped
+async function monitorConnection(interval = 30000) {
+  setInterval(async () => {
+    try {
+      await sql`SELECT 1;`;
+    } catch (err) {
+      console.warn("⚠️ DB connection unhealthy, reinitializing...");
+      sql = postgres(connectionString, {
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  max_lifetime: 60,
+  idle_timeout: 30,
+  prepare: false,
+  connect_timeout: 10,
+  // ssl: 'require',
+});
+    }
+  }, interval);
+}
+monitorConnection();
+
 
 
 // console.log("connected to supabase POSTGRESSQL");
