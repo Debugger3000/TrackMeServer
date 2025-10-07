@@ -94,7 +94,7 @@ export function tallyHoleScores(holes: IHole_Stats[], holes_count: number) {
 
     if (hole_score && hole_par) {
       const diff = hole_score - hole_par;
-      console.log("'diff before switch: ", diff);
+      // console.log("'diff before switch: ", diff);
 
       // if (!diff) {
       //   return;
@@ -118,7 +118,7 @@ export function tallyHoleScores(holes: IHole_Stats[], holes_count: number) {
       }
     }
   }
-  console.log("hole scorses: ", hole_scores);
+  // console.log("hole scorses: ", hole_scores);
   return hole_scores;
 }
 

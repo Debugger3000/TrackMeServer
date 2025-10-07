@@ -9,7 +9,7 @@ export const verifyToken = (
   cookie: Record<string, Cookie<string | undefined>>,
   header: Record<string, string | undefined>
 ) => {
-  console.log("verify token has run !");
+  // console.log("verify token has run !");
   try {
     //return "101";
     if (!refresh_secret || !access_secret) {
@@ -31,7 +31,7 @@ export const verifyToken = (
       return "BAD_TOKEN";
     }
 
-    console.log("Refresh token is Good ");
+    // console.log("Refresh token is Good ");
 
     // check access token
     const accessToken = cookie!.accessToken?.value;
@@ -83,7 +83,7 @@ export const verifyToken = (
 
     // Refresh Token is BAD
     // we return null, and we need return response error so client gets logged out and redirect to login...
-    console.log("verify Token returning true");
+    // console.log("verify Token returning true");
     return true;
   } catch (err) {
     // token invalid or expired
@@ -98,12 +98,12 @@ export function verifyTokenHelper(
 ) {
   try {
     if (token && secret) {
-      console.log("verify token paramter: ");
+      // console.log("verify token paramter: ");
       // console.log("secret param: ");
       const payload = jwt.verify(token, secret) as jwt.JwtPayload;
       return payload;
     } else {
-      console.log("else hit in verifiyTokenHelper");
+      // console.log("else hit in verifiyTokenHelper");
       return "BAD_TOKEN";
     }
   } catch (error) {

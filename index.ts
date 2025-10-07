@@ -46,7 +46,7 @@ const app = new Elysia()
       // if paths include login or register then we dont need to check any tokens
       // but, if /checkStartSession is run, then we can simply
       console.log("path on before Handle: ", path);
-      console.log("params on before Handle: ", params);
+      // console.log("params on before Handle: ", params);
       if (
         !(
           path.includes("/login") ||
@@ -64,7 +64,7 @@ const app = new Elysia()
         } else if (result !== true && result !== null) {
           // we have a access token to use
           // set context header, here so we can later set response header
-          console.log("Before handle setting access token");
+          // console.log("Before handle setting access token");
           cookie?.accessToken!.set({
             value: result,
             httpOnly: true,
