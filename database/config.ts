@@ -4,12 +4,12 @@ import postgres from "postgres";
 
 const connectionString = process.env.DATABASE_URL!;
 
-// console.log("Connection string: ", connectionString);
+console.log("Connection string: ", connectionString);
 let sql = postgres(connectionString, {
   ssl: { rejectUnauthorized: false },
   max: 10,
-  max_lifetime: 60,
-  idle_timeout: 30,
+  max_lifetime: 600,
+  idle_timeout: 120,
   prepare: false,
   connect_timeout: 10,
   // ssl: 'require',
