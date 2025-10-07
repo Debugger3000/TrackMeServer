@@ -32,8 +32,8 @@ export async function createEightHoles(
   }));
 
   // Insert all rows in one query
-  const inserted = await sql`
-    INSERT INTO holes ${sql(holeValues)}
+  const inserted = await sql!`
+    INSERT INTO holes ${sql!(holeValues)}
     RETURNING *;
   `;
   return inserted;
@@ -55,8 +55,8 @@ export async function createNineHoles(
   }));
 
   // Insert all rows in one query
-  const inserted = await sql`
-    INSERT INTO holes ${sql(holeValues)}
+  const inserted = await sql!`
+    INSERT INTO holes ${sql!(holeValues)}
     RETURNING *;
   `;
   return inserted;

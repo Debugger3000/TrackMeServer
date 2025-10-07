@@ -101,7 +101,7 @@ type parse_course = {
 // -------------------- query for nine or eighteen holes...
 export async function getGameObjectNine(game_id: string) {
   try {
-    const result = await sql<IGameBase[]>`SELECT 
+    const result = await sql!<IGameBase[]>`SELECT 
     g.id,
     g.user_id,
     g.course_id,
@@ -132,7 +132,7 @@ export async function getGameObjectNine(game_id: string) {
 
 export async function getGameObjectEight(game_id: string) {
   try {
-    const result = await sql<IGameBase[]>`SELECT 
+    const result = await sql!<IGameBase[]>`SELECT 
     g.id,
     g.user_id,
     g.course_id,

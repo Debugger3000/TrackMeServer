@@ -24,9 +24,9 @@ export const postShotData = async (shotDataBody: IShot[]) => {
 
     //.log("ShotData normalized body: ", normalizedShots);
 
-    const result = await sql`
+    const result = await sql!`
         INSERT INTO shots
-        ${sql(normalizedShots)}
+        ${sql!(normalizedShots)}
         RETURNING id
         `;
 
@@ -61,7 +61,7 @@ export const getShotData = async (
     } else {
       //.log("token user id:", result.id);
       //.log("club type queried for: ", params.clubType);
-      const queryResult = await sql<IShotFromSql[]>`
+      const queryResult = await sql!<IShotFromSql[]>`
         select clubtype, shotcontact, shotpath, created_at from shots where userid = ${result.id} and clubtype = ${params.clubType}
         `;
       //.log("query result shotdata: ", queryResult.columns);
@@ -155,9 +155,9 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
       stroke: body.stroke,
     };
 
-    const result = await sql`
+    const result = await sql!`
   INSERT INTO game_shots 
-  ${sql([objecter])}
+  ${sql!([objecter])}
   RETURNING id
 `;
 
@@ -175,7 +175,7 @@ export const deleteGameShotData = async (body: Game_Shot_Delete) => {
   try {
     //.log("delete game shot body hehe: ", body);
 
-    const result = await sql`
+    const result = await sql!`
       DELETE FROM game_shots
       WHERE game_id = ${body.game_id}
         AND hole_id = ${body.hole_id}

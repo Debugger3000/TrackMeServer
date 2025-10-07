@@ -30,9 +30,9 @@ export const loginUser = async (
       return { success: false, message: "Server secret error" };
     }
 
-    // console.log("Pool stats:", sql.options);
+    // console.log("Pool stats:", sql!.options);
 
-    const [user] = await sql`
+    const [user] = await sql!`
     select * from users 
     where username = ${username}
   `;
@@ -130,7 +130,7 @@ export const registerUser = async (
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const [user] = await sql`
+    const [user] = await sql!`
     INSERT INTO users (username, password_hash)
     VALUES (${username}, ${passwordHash})
     RETURNING id, username

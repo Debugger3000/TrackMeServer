@@ -53,7 +53,7 @@ export const getGamesBySearch = async (
 
     // -----------------------------------
 
-    const result = await sql<IGameView[]>`
+    const result = await sql!<IGameView[]>`
   SELECT g.id,
     g.user_id,
     g.course_id,
@@ -117,7 +117,7 @@ export const getGameStats = async (
     const time_filter =
       game_data_filter_time[params.timeFilter as TTime_Filter];
 
-    const games_result = await sql<IGameView[]>`
+    const games_result = await sql!<IGameView[]>`
   SELECT 
     g.id,
     g.user_id,
@@ -129,7 +129,7 @@ export const getGameStats = async (
     g.created_at
   FROM games g
   WHERE g.user_id = ${user_id}
-    AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    AND g.created_at >= NOW() - INTERVAL '${sql!(time_filter)}'
     AND status = 'COMPLETE'
     AND g.holes = ${holes}
   ORDER BY g.created_at DESC
@@ -150,7 +150,7 @@ export const getGameStats = async (
     // --------------------
 
     // GET hole data
-    const holes_result = await sql<IHole_Stats[]>`
+    const holes_result = await sql!<IHole_Stats[]>`
   SELECT 
   h.hole_number,
   h.putt_count,
@@ -162,7 +162,7 @@ WHERE h.game_id IN (
   FROM games g
   WHERE g.user_id = ${user_id}
     AND g.holes = ${holes}
-    AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    AND g.created_at >= NOW() - INTERVAL '${sql!(time_filter)}'
     AND g.status = 'COMPLETE')`;
 
     // old holes get
@@ -189,7 +189,7 @@ WHERE h.game_id IN (
 
 
     // newer one
-    const game_shots_result = await sql<IGame_Shots_Stats[]>`
+    const game_shots_result = await sql!<IGame_Shots_Stats[]>`
   SELECT 
   gs.shot_count,
   gs.shot_contact,
@@ -204,7 +204,7 @@ WHERE gs.game_id IN (
   FROM games g
   WHERE g.user_id = ${user_id}
     AND g.holes = ${holes}
-    AND g.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+    AND g.created_at >= NOW() - INTERVAL '${sql!(time_filter)}'
     AND g.status = 'COMPLETE'
 )
 ORDER BY gs.created_at DESC`;
@@ -304,7 +304,7 @@ export const getManyGameShots = async (
       game_data_filter_time[params.timeFilter as TTime_Filter];
 
     // get shots now.....
-    const game_shots_result = await sql<IGame_Shots_Stats[]>`
+    const game_shots_result = await sql!<IGame_Shots_Stats[]>`
   SELECT 
     gs.shot_count,
     gs.shot_contact,
@@ -316,7 +316,7 @@ export const getManyGameShots = async (
   FROM game_shots gs
   WHERE gs.user_id = ${user_id}
   AND gs.club_type = ${club_type}
-  AND gs.created_at >= NOW() - INTERVAL '${sql(time_filter)}'
+  AND gs.created_at >= NOW() - INTERVAL '${sql!(time_filter)}'
   ORDER BY gs.created_at DESC
 `;
 
@@ -397,7 +397,7 @@ export const getSoloGameStats = async (
     // query
     // --------------------
 
-    const games_result = await sql<IGameView[]>`
+    const games_result = await sql!<IGameView[]>`
   SELECT 
     g.id,
     g.user_id,
@@ -429,7 +429,7 @@ export const getSoloGameStats = async (
     // --------------------
 
     // GET hole data
-    const holes_result = await sql<IHole_Stats[]>`
+    const holes_result = await sql!<IHole_Stats[]>`
   SELECT 
     h.hole_number,
     h.putt_count,
@@ -451,7 +451,7 @@ export const getSoloGameStats = async (
     const hole_score_distro = tallyHoleScores(holes_data, holes_played);
 
     // get shots now.....
-    const game_shots_result = await sql<IGame_Shots_Stats[]>`
+    const game_shots_result = await sql!<IGame_Shots_Stats[]>`
   SELECT 
     gs.shot_count,
     gs.shot_contact,
@@ -539,7 +539,7 @@ export const getSoloGameShotStats = async (
     // --------------------
 
     // get shots now.....
-    const solo_game_shots_result = await sql<IGame_Shots_Stats[]>`
+    const solo_game_shots_result = await sql!<IGame_Shots_Stats[]>`
   SELECT 
     gs.shot_count,
     gs.shot_contact,
