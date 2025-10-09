@@ -5,6 +5,11 @@ export const patchGameHole = async (holeBody: Hole_Submit) => {
   console.log("INSIDE patch hole game CONTROLLER");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "patch game hole!" };
+    }
+
     console.log("patch hole body: ", holeBody);
 
     // patch hole with score and putt / notes
@@ -56,6 +61,11 @@ export const patchPreviousGameHole = async (holeBody: Hole_Submit) => {
   console.log("INSIDE patch previous hole game CONTROLLER");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "patch prev game hole !" };
+    }
+
     //.log("patch preivous hole body: ", holeBody);
 
     // patch hole with score and putt / notes

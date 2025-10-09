@@ -15,6 +15,11 @@ export const postShotData = async (shotDataBody: IShot[]) => {
   console.log("INSIDE shots CONTROLLER");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "post shot data failed !" };
+    }
+
     const normalizedShots = shotDataBody.map((s) => ({
       userid: s.userId,
       clubtype: s.clubType,
@@ -24,9 +29,9 @@ export const postShotData = async (shotDataBody: IShot[]) => {
 
     //.log("ShotData normalized body: ", normalizedShots);
 
-    const result = await sql!`
+    const result = await sql`
         INSERT INTO shots
-        ${sql!(normalizedShots)}
+        ${sql(normalizedShots)}
         RETURNING id
         `;
 
@@ -45,6 +50,11 @@ export const getShotData = async (
   params: { clubType: string }
 ) => {
   try {
+
+    if(!sql){
+      return { success: false, message: "get shot data !" };
+    }
+
     console.log("inside getShotData");
 
     const refresh_secret = process.env.JWT_REFRESH_SECRET;
@@ -61,7 +71,7 @@ export const getShotData = async (
     } else {
       //.log("token user id:", result.id);
       //.log("club type queried for: ", params.clubType);
-      const queryResult = await sql!<IShotFromSql[]>`
+      const queryResult = await sql<IShotFromSql[]>`
         select clubtype, shotcontact, shotpath, created_at from shots where userid = ${result.id} and clubtype = ${params.clubType}
         `;
       //.log("query result shotdata: ", queryResult.columns);
@@ -135,6 +145,11 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
   console.log("INSIDE GAME shots CONTROLLER");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "poist game shot data !" };
+    }
+
     //.log("ShotData GAMER : ", body);
 
     const objecter = {
@@ -155,9 +170,9 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
       stroke: body.stroke,
     };
 
-    const result = await sql!`
+    const result = await sql`
   INSERT INTO game_shots 
-  ${sql!([objecter])}
+  ${sql([objecter])}
   RETURNING id
 `;
 
@@ -173,9 +188,14 @@ export const postGameShotData = async (body: Game_Shot_Data_Submit) => {
 // delete a game shot data hehe
 export const deleteGameShotData = async (body: Game_Shot_Delete) => {
   try {
+
+    if(!sql){
+      return { success: false, message: "delete game shot data failed !" };
+    }
+
     //.log("delete game shot body hehe: ", body);
 
-    const result = await sql!`
+    const result = await sql`
       DELETE FROM game_shots
       WHERE game_id = ${body.game_id}
         AND hole_id = ${body.hole_id}

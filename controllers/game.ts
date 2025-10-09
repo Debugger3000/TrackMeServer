@@ -46,6 +46,10 @@ export const createGameData = async (
   console.log("INSIDE create Game object CONTROLLER");
 
   try {
+    if (!sql) {
+      return { success: false, message: "Game creation failed !" };
+    }
+
     const access_secret = process.env.JWT_ACCESS_SECRET;
 
     const accessTokenResult = verifyTokenHelper(
@@ -141,6 +145,9 @@ export const getCompleteGames = async (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
   try {
+    if (!sql) {
+      return { success: false, message: "get complete games failed !" };
+    }
     // console.log("id for user to get IN-PROGRESS games: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
@@ -194,6 +201,9 @@ export const getCurrentGames = async (
   cookie: Record<string, Cookie<string | undefined>>
 ) => {
   try {
+    if (!sql) {
+      return { success: false, message: "get current games failed !" };
+    }
     // console.log("id for user to get IN-PROGRESS games: ", cookie);
 
     const access_secret = process.env.JWT_ACCESS_SECRET;
@@ -252,6 +262,10 @@ export const getNineGameById = async (params: { game_id: string }) => {
   console.log("INSIDE GET game poster CONTROLLER");
 
   try {
+    if (!sql) {
+      return { success: false, message: "get game by nine id !" };
+    }
+
     const game_id = params.game_id;
     // console.log("game id: ", params.game_id);
     // get game object by sql query
@@ -334,6 +348,10 @@ export const getEightGameById = async (params: { game_id: string }) => {
   console.log("INSIDE GET game for EIGHT poster CONTROLLER");
 
   try {
+    if (!sql) {
+      return { success: false, message: "get game by eight id failed !" };
+    }
+
     const game_id = params.game_id;
     // console.log("game id: ", params.game_id);
 
@@ -352,7 +370,6 @@ export const getEightGameById = async (params: { game_id: string }) => {
     const score_card_sorted = getScoreCardEight(main_q);
     // sort course data into one object
     const course_sorted = getCourseData(main_q);
-
 
     // Grab holes first, cause we need to aggregates shots to holes
     const check_holes = await sql`
@@ -375,7 +392,6 @@ export const getEightGameById = async (params: { game_id: string }) => {
     // console.log("get shots data: ", [...shot_data]);
 
     const shots_array = [...shot_data] as Game_Shot_Data[];
-
 
     // send the data to a function to get cleaned and then send back, in game object...
     const hole_data_return = cleanHoleDataEight(holes_array, shots_array);
@@ -406,5 +422,30 @@ export const getEightGameById = async (params: { game_id: string }) => {
   } catch (error) {
     console.log("PostShotData controller error: ", error);
     return { success: false, message: "Course upload failed !" };
+  }
+};
+
+export const deleteGameById = async (params: { game_id: string }) => {
+  console.log("INSIDE GET game for EIGHT poster CONTROLLER");
+  try {
+    if (!sql) {
+      return { success: false, message: "delete game sql object null !" };
+    }
+
+    const shot_data = await sql`
+        DELETE FROM games
+        WHERE id = ${params.game_id};
+    `;
+
+    if (!shot_data) {
+      return { success: false, message: "Delete game failed !" };
+    }
+
+    console.log(`Game with ID: ${params.game_id} has been deleted.`);
+
+    return { success: true, message: "Game deleted" };
+  } catch (error) {
+    console.log("delete game  controller error: ", error);
+    return { success: false, message: "Delete game failed !" };
   }
 };

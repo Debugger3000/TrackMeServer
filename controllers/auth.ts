@@ -24,6 +24,11 @@ export const loginUser = async (
   console.log("INSIDE LOGIN CONTROLLER");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "Login failed !" };
+    }
+
     const access_secret = process.env.JWT_ACCESS_SECRET;
     const refresh_secret = process.env.JWT_REFRESH_SECRET;
     if (!access_secret || !refresh_secret) {
@@ -32,7 +37,7 @@ export const loginUser = async (
 
     // console.log("Pool stats:", sql!.options);
 
-    const [user] = await sql!`
+    const [user] = await sql`
     select * from users 
     where username = ${username}
   `;
@@ -112,6 +117,11 @@ export const registerUser = async (
   console.log("Register user controller hit");
 
   try {
+
+    if(!sql){
+      return { success: false, message: "register failed !" };
+    }
+
     // check DB for username uniqueness
     //   const [checkUser] = await sql`
     //   select * from users
@@ -130,7 +140,7 @@ export const registerUser = async (
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const [user] = await sql!`
+    const [user] = await sql`
     INSERT INTO users (username, password_hash)
     VALUES (${username}, ${passwordHash})
     RETURNING id, username
