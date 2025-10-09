@@ -1,6 +1,7 @@
 import { Elysia, status } from "elysia";
 import {
   createGameData,
+  deleteGameById,
   getCompleteGames,
   getCurrentGames,
   getEightGameById,
@@ -12,6 +13,21 @@ import type { Hole_Submit } from "../types/game";
 import { getGamesBySearch, getGameStats, getSoloGameStats } from "../controllers/game-stats";
 
 export const gameDataRoute = new Elysia({ prefix: "/api/game" })
+.delete("/:game_id", async ({ params }) => {
+    try {
+      console.log("In adding course Data");
+      const result = await deleteGameById(params);
+      if (!result || !result.success) {
+        console.log("500 for delete game");
+        throw status(500);
+      } else {
+        console.log("delete game good. Returning success.");
+        return result;
+      }
+    } catch (error) {
+      console.log("Error in delete game router");
+    }
+  })
   .post("/create", async ({ body, cookie }) => {
     try {
       console.log("In adding course Data");

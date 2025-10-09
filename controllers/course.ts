@@ -5,7 +5,11 @@ export const postCourseData = async (courseBody: ICourse) => {
   console.log("INSIDE course poster CONTROLLER");
 
   try {
-    console.log("course data body: ", courseBody);
+
+    if(!sql){
+      return { success: false, message: "Course upload failed !" };
+    }
+    // console.log("course data body: ", courseBody);
 
     const [result] = await sql`
     insert into courses (club_name, location, course_name, par, holes)
@@ -19,7 +23,7 @@ export const postCourseData = async (courseBody: ICourse) => {
       // send score_card data to nine_holes_score_cards
       if (courseBody.holes === 9) {
         const sc = courseBody.score_card;
-        console.log("nine score card pre insert: ", sc);
+        // console.log("nine score card pre insert: ", sc);
 
         // now upload the score card for this course...
         const result_nine = await sql`
@@ -32,7 +36,7 @@ export const postCourseData = async (courseBody: ICourse) => {
         `;
       } else {
         const sc = courseBody.score_card as eighteen_hole_card;
-        console.log("eighteen score card pre insert: ", sc);
+        // console.log("eighteen score card pre insert: ", sc);
 
         const result_eighteen = await sql`
         INSERT INTO eighteen_score_cards (
@@ -53,6 +57,7 @@ export const postCourseData = async (courseBody: ICourse) => {
     }
 
     // console.log("result of query hehe", result);
+    console.log("Scorecard for course created !");
 
     return { success: true, message: "Course uploaded !" };
   } catch (error) {
@@ -66,6 +71,10 @@ export const getCourseByClub = async (params: { club_name: string }) => {
   console.log("INSIDE GET course poster CONTROLLER");
 
   try {
+    if(!sql){
+      return { success: false, message: "Course upload failed !" };
+    }
+
     // console.log("course search body: ", params.club_name);
 
     const result = await sql<
