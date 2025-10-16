@@ -1,12 +1,16 @@
-import type { eighteen_hole_card, ICourse, ICourseView } from "../types/course";
+import type {
+  eighteen_hole_card,
+  ICourse,
+  ICourseView,
+  THoles,
+} from "../types/course";
 import sql from "../database/config";
 
 export const postCourseData = async (courseBody: ICourse) => {
   console.log("INSIDE course poster CONTROLLER");
 
   try {
-
-    if(!sql){
+    if (!sql) {
       return { success: false, message: "Course upload failed !" };
     }
     // console.log("course data body: ", courseBody);
@@ -71,7 +75,7 @@ export const getCourseByClub = async (params: { club_name: string }) => {
   console.log("INSIDE GET course poster CONTROLLER");
 
   try {
-    if(!sql){
+    if (!sql) {
       return { success: false, message: "Course upload failed !" };
     }
 
@@ -90,5 +94,52 @@ export const getCourseByClub = async (params: { club_name: string }) => {
   } catch (error) {
     console.log("PostShotData controller error: ", error);
     return { success: false, message: "Course upload failed !" };
+  }
+};
+
+// -----------------
+// DELETE - course
+//
+
+export const deleteCourseById = async (params: {
+  course_id: number;
+  holes: THoles;
+}) => {
+  console.log("INSIDE DELETE course controller");
+
+  try {
+    if (!sql) {
+      return {
+        success: false,
+        message: "Course delete failed! No SQL connection.",
+      };
+    }
+
+    const { course_id, holes } = params;
+
+    // check for holes
+
+    // First delete scorecard depending on hole type
+    // Try to delete from both tables (only one will match)
+    if (holes === 18) {
+      await sql`DELETE FROM eighteen_score_cards WHERE course_id = ${course_id}`;
+    } else {
+      await sql`DELETE FROM nine_score_cards WHERE course_id = ${course_id}`;
+    }
+
+    // Now delete the course itself
+    const result =
+      await sql`DELETE FROM courses WHERE id = ${course_id} RETURNING id`;
+
+    if (result.length === 0) {
+      console.log("No course found with that ID.");
+      return { success: false, message: "No course found to delete." };
+    }
+
+    console.log("Course and related scorecard deleted successfully!");
+    return { success: true, message: "Course deleted successfully!" };
+  } catch (error) {
+    console.log("DeleteCourse controller error:", error);
+    return { success: false, message: "Course deletion failed!" };
   }
 };
