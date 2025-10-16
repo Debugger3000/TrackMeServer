@@ -143,3 +143,36 @@ export const deleteCourseById = async (params: {
     return { success: false, message: "Course deletion failed!" };
   }
 };
+
+
+// ----------------
+//  GET - courses
+// 
+
+
+export const getAllCourses = async () => {
+  console.log("INSIDE GET all courses controller");
+
+  try {
+    if (!sql) {
+      return { success: false, message: "Failed to fetch courses!" };
+    }
+
+    const result = await sql<ICourseView[]>`
+      SELECT id, club_name, location, course_name, par, holes
+      FROM courses
+      ORDER BY club_name, course_name
+    `;
+
+    const rowData = [...result];
+    console.log("Fetched all courses:", rowData.length);
+
+    console.log("courses grabbed: ", rowData);
+
+    return rowData;
+  } catch (error) {
+    console.log("GetAllCourses controller error:", error);
+    return { success: false, message: "Failed to fetch courses!" };
+  }
+};
+
